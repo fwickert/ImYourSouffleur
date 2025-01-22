@@ -12,7 +12,7 @@ const SamplesGrid: React.FC = () => {
 
     return (
         <section>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px' }}>Get started with these samples</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px' }}>Démarrer votre journée</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
                 {samples.map((sample, index) => (
                     <SampleCard key={index} title={sample.title} description={sample.description} />
