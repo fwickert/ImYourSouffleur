@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Persona } from '../models/Persona';
-import { Button, makeStyles, Card, Image } from '@fluentui/react-components';
-import { ArrowLeft24Regular } from '@fluentui/react-icons';
+import { Button, makeStyles, Card, Image, Spinner } from '@fluentui/react-components';
+import { ArrowLeft24Regular, ArrowSyncRegular } from '@fluentui/react-icons';
+import Appointments from './Appointments';
+import CustomerService from '../services/CustomerService';
+import { Customer } from '../models/Customer';
+import { Appointment } from '../models/Appointment';
 
 interface SynchronisationProps {
     persona: Persona;
@@ -35,11 +39,73 @@ const useStyles = makeStyles({
         width: '100%',
         height: '70px', // Adjust height for the image
         objectFit: 'cover',
-    }    
+    },
+    appointmentsContainer: {
+        marginTop: '20px',
+        display: 'flex',
+        alignItems: 'center',
+    },
+    appointments: {
+        // Add any specific styles for appointments if needed
+    },
+    synchroButton: {
+        marginLeft: '50px',
+        border: 'none',
+        backgroundColor: 'transparent',
+    },
+    spinner: {
+        marginLeft: '20px',
+    },
+    statusMessage: {
+        marginLeft: '10px',
+        alignSelf: 'center',
+    },
+    customersContainer: {
+        padding: '20px',
+        borderRadius: '10px',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'var(--colorNeutralBackground1)',
+        width: '400px',
+        border: '1px solid lightgray',
+        marginLeft: '20px',
+    },
+    customerItem: {
+        padding: '10px',
+        margin: '10px 0',
+        borderRadius: '8px',
+        backgroundColor: '#000',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        border: '1px solid #777',
+    },
 });
 
 const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) => {
     const classes = useStyles();
+    const [customers, setCustomers] = useState<Customer[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+    const handleAppointmentsLoaded = (loadedAppointments: Appointment[]) => {
+        setAppointments(loadedAppointments);
+    };
+
+    const handleSyncClick = async () => {
+        setLoading(true);
+        const customerService = new CustomerService();
+        const loadedCustomers: Customer[] = [];
+
+        for (const appointment of appointments) {
+            const loadedCustomer: Customer | null = await customerService.getCustomerById(appointment.customerId);
+            if (loadedCustomer !== null) {
+                loadedCustomers.push(loadedCustomer);
+            }
+        }
+
+        setCustomers(loadedCustomers);
+        setLoading(false);
+    };
 
     return (
         <div className={classes.container}>
@@ -49,14 +115,36 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
                 className={classes.backButton}
             />
             <Card className={classes.personaCard}>
-                <Image src={persona.image} alt={persona.name} className={classes.personaImage} />                
+                <Image src={persona.image} alt={persona.name} className={classes.personaImage} />
             </Card>
-            <h1>Synchronisation Screen</h1>
-            <p>This is the new screen displayed when the user clicks on "Synchronisation".</p>
-            <p>Selected Persona: {persona.name}</p>
+            <h1>Synchronisation</h1>
+            <p>Récupère les informations pour ta journée</p>
             <p>Prompt: {persona.prompt}</p>
+            <div className={classes.appointmentsContainer}>
+                <div className={classes.appointments}>
+                    <Appointments persona={persona.type} onAppointmentsLoaded={handleAppointmentsLoaded} />
+                </div>
+                <Button
+                    icon={<ArrowSyncRegular />}
+                    className={classes.synchroButton}
+                    onClick={handleSyncClick}
+                    disabled={loading}
+                />
+                {loading && <Spinner className={classes.spinner} />}
+                {loading && <span className={classes.statusMessage}>Loading customers...</span>}
+                <div className={classes.customersContainer}>
+                    {customers.length > 0 && customers.map((customer, index) => (
+                        <div key={index} className={classes.customerItem}>
+                            <div className={classes.statusMessage}>
+                                Customer {customer.firstName} {customer.lastName} is loaded
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };
 
 export default Synchronisation;
+

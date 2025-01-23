@@ -11,10 +11,10 @@ const App: React.FC = () => {
     const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
 
     const personas: Persona[] = [
-        { name: 'Vendeurs', prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
-        { name: 'Maintenance', prompt: 'Démarre ta journée en synchronisant tes données de maintenance.', image: '/fieldservice.jpeg' },
-        { name: 'Beauty Advisor', prompt: 'Démarre ta journée en synchronisant tes données de beauté.', image: '/retail.jpeg' },
-        { name: 'Finance', prompt: 'Démarre ta journée en synchronisant tes données financières.', image: '/finance.jpeg' },
+        { name: 'Vendeurs', type:"Sales", prompt: 'DÃ©marre ta journÃ©e en synchronisant tes donnÃ©es de vente.', image: '/sales.jpeg' },
+        { name: 'Maintenance', type:"FieldService" , prompt: 'DÃ©marre ta journÃ©e en synchronisant tes donnÃ©es de maintenance.', image: '/fieldservice.jpeg' },
+        { name: 'Beauty Advisor', type: "FieldService", prompt: 'DÃ©marre ta journÃ©e en synchronisant tes donnÃ©es de beautÃ©.', image: '/retail.jpeg' },
+        { name: 'Finance', type: "FieldService", prompt: 'DÃ©marre ta journÃ©e en synchronisant tes donnÃ©es financiÃ¨res.', image: '/finance.jpeg' },
     ];
 
     const handlePersonaSelect = (index: number) => {

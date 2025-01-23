@@ -1,12 +1,25 @@
+using ImYourSouffleur.Server.Extensions;
+using ImYourSouffleur.Server.Hubs;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services
+    .AddSingleton<ILogger>(sp => sp.GetRequiredService<ILogger<Program>>()) // some services require an un-templated ILogger
+    .AddOptions(builder.Configuration)
+    .AddServices()
+    .AddSemanticKernelServices();
+
+builder.Services.AddSignalR(options => options.MaximumParallelInvocationsPerClient = 10);
+
+builder.Services.AddCorsPolicy();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.MapHub<MessageRelayHub>("/messageRelayHub");
 
 app.UseDefaultFiles();
 app.MapStaticAssets();
@@ -18,7 +31,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();

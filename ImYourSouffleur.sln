@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImYourSouffleur.Server", "ImYourSouffleur.Server\ImYourSouffleur.Server.csproj", "{5F1873F0-5370-4D24-9303-7F3BE5DB69A4}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "imyoursouffleur.client", "imyoursouffleur.client\imyoursouffleur.client.esproj", "{8FF54646-B19A-4989-8B72-58D023D70162}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD6088FA-7E73-4150-A43E-104BFE822619}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

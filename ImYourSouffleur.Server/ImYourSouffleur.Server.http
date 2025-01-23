@@ -1,6 +1,6 @@
 @ImYourSouffleur.Server_HostAddress = http://localhost:5053
 
-GET {{ImYourSouffleur.Server_HostAddress}}/weatherforecast/
+GET {{ImYourSouffleur.Server_HostAddress}}/api/customer/12345
 Accept: application/json
 
 ###

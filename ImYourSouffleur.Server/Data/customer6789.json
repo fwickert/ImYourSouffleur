@@ -1,0 +1,64 @@
+{
+  "customerId": "6789",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane.smith@business.com",
+  "phone": "+1-800-555-6789",
+  "address": {
+    "street": "456 Commerce Ave",
+    "city": "Commercetown",
+    "state": "NY",
+    "zipCode": "10001",
+    "country": "USA"
+  },
+  "purchaseHistory": [
+    {
+      "purchaseId": "2001",
+      "date": "2023-02-20",
+      "items": [
+        {
+          "productId": "LAPTOP001",
+          "productName": "Business Laptop",
+          "quantity": 5,
+          "price": 2000.00
+        },
+        {
+          "productId": "HEADSET001",
+          "productName": "Wireless Headset",
+          "quantity": 10,
+          "price": 100.00
+        }
+      ],
+      "totalAmount": 11000.00
+    },
+    {
+      "purchaseId": "2002",
+      "date": "2023-05-10",
+      "items": [
+        {
+          "productId": "MONITOR001",
+          "productName": "4K Monitor",
+          "quantity": 8,
+          "price": 500.00
+        }
+      ],
+      "totalAmount": 4000.00
+    }
+  ],
+  "customerServiceHistory": [
+    {
+      "serviceId": "3001",
+      "date": "2023-03-15",
+      "issue": "Laptop overheating",
+      "resolution": "Cleaned cooling fan",
+      "status": "Resolved"
+    },
+    {
+      "serviceId": "3002",
+      "date": "2023-06-01",
+      "issue": "Monitor not displaying",
+      "resolution": "Replaced HDMI cable",
+      "status": "Resolved"
+    }
+  ]
+}
