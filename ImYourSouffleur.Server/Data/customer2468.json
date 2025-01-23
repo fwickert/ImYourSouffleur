@@ -1,0 +1,64 @@
+{
+  "customerId": "12345",
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "email": "alice.johnson@business.com",
+  "phone": "+1-800-555-1234",
+  "address": {
+    "street": "123 Business St",
+    "city": "Businesstown",
+    "state": "CA",
+    "zipCode": "90210",
+    "country": "USA"
+  },
+  "purchaseHistory": [
+    {
+      "purchaseId": "1001",
+      "date": "2023-01-15",
+      "items": [
+        {
+          "productId": "PC001",
+          "productName": "Business PC",
+          "quantity": 10,
+          "price": 1500.00
+        },
+        {
+          "productId": "MOUSE001",
+          "productName": "Wireless Mouse",
+          "quantity": 20,
+          "price": 25.00
+        }
+      ],
+      "totalAmount": 15500.00
+    },
+    {
+      "purchaseId": "1002",
+      "date": "2023-03-22",
+      "items": [
+        {
+          "productId": "TABLET001",
+          "productName": "Business Tablet",
+          "quantity": 15,
+          "price": 1300.00
+        }
+      ],
+      "totalAmount": 19500.00
+    }
+  ],
+  "customerServiceHistory": [
+    {
+      "serviceId": "2001",
+      "date": "2023-02-10",
+      "issue": "PC not starting",
+      "resolution": "Replaced power supply",
+      "status": "Resolved"
+    },
+    {
+      "serviceId": "2002",
+      "date": "2023-04-05",
+      "issue": "Tablet screen cracked",
+      "resolution": "Replaced screen",
+      "status": "Resolved"
+    }
+  ]
+}

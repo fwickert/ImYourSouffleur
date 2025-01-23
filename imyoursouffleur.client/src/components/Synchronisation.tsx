@@ -86,6 +86,8 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [loadingCustomers, setLoadingCustomers] = useState<boolean[]>([]);
+    const [syncClicked, setSyncClicked] = useState(false);
 
     const handleAppointmentsLoaded = (loadedAppointments: Appointment[]) => {
         setAppointments(loadedAppointments);
@@ -93,14 +95,21 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
 
     const handleSyncClick = async () => {
         setLoading(true);
+        setSyncClicked(true);
         const customerService = new CustomerService();
         const loadedCustomers: Customer[] = [];
+        const loadingStates = new Array(appointments.length).fill(true);
+        setLoadingCustomers(loadingStates);
 
-        for (const appointment of appointments) {
+        for (let i = 0; i < appointments.length; i++) {
+            const appointment = appointments[i];
             const loadedCustomer: Customer | null = await customerService.getCustomerById(appointment.customerId);
             if (loadedCustomer !== null) {
                 loadedCustomers.push(loadedCustomer);
+                console.log(`Customer loaded : `, loadedCustomer);
             }
+            loadingStates[i] = false;
+            setLoadingCustomers([...loadingStates]);
         }
 
         setCustomers(loadedCustomers);
@@ -130,14 +139,16 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
                     onClick={handleSyncClick}
                     disabled={loading}
                 />
-                {loading && <Spinner className={classes.spinner} />}
-                {loading && <span className={classes.statusMessage}>Loading customers...</span>}
                 <div className={classes.customersContainer}>
-                    {customers.length > 0 && customers.map((customer, index) => (
+                    {syncClicked && appointments.map((appointment, index) => (
                         <div key={index} className={classes.customerItem}>
-                            <div className={classes.statusMessage}>
-                                Customer {customer.firstName} {customer.lastName} is loaded
-                            </div>
+                            {loadingCustomers[index] ? (
+                                <Spinner className={classes.spinner} />
+                            ) : (
+                                <div className={classes.statusMessage}>
+                                    Customer {customers[index]?.firstName} {customers[index]?.lastName} is loaded
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -147,4 +158,3 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
 };
 
 export default Synchronisation;
-
