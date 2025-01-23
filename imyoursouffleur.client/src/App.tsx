@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FluentProvider, webDarkTheme } from '@fluentui/react-components';
 import Sidebar from './components/Sidebar';
 import HeroSection from './components/HeroSection';
 import SamplesGrid from './components/SamplesGrid';
+import Synchronisation from './components/Synchronisation';
+import { Persona } from './models/Persona';
 
 const App: React.FC = () => {
+    const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
+    const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
+
+    const personas: Persona[] = [
+        { name: 'Vendeurs', prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
+        { name: 'Maintenance', prompt: 'Démarre ta journée en synchronisant tes données de maintenance.', image: '/fieldservice.jpeg' },
+        { name: 'Beauty Advisor', prompt: 'Démarre ta journée en synchronisant tes données de beauté.', image: '/retail.jpeg' },
+        { name: 'Finance', prompt: 'Démarre ta journée en synchronisant tes données financières.', image: '/finance.jpeg' },
+    ];
+
+    const handlePersonaSelect = (index: number) => {
+        setSelectedPersona(index);
+    };
+
+    const handleSynchronisationClick = () => {
+        setShowSynchronisationScreen(true);
+    };
+
+    const handleBackClick = () => {
+        setShowSynchronisationScreen(false);
+    };
+
     return (
         <FluentProvider theme={webDarkTheme}>
             <div
@@ -12,13 +36,12 @@ const App: React.FC = () => {
                     display: 'flex',
                     height: '100vh',
                     overflow: 'hidden',
-                    position: 'relative', // Add relative positioning
-                    backgroundImage: 'url(/bg.jpg)', // Add background image
-                    backgroundSize: 'cover', // Ensure the image covers the entire background
-                    backgroundPosition: 'center', // Center the background image
+                    position: 'relative',
+                    backgroundImage: 'url(/bg.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                 }}
             >
-                {/* Dark overlay */}
                 <div
                     style={{
                         position: 'absolute',
@@ -26,15 +49,21 @@ const App: React.FC = () => {
                         left: '100px',
                         width: '100%',
                         height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent black
-                        zIndex: 1, // Ensure the overlay is above the background image
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        zIndex: 1,
                     }}
                 ></div>
                 <Sidebar />
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', zIndex: 2 }}>
                     <main style={{ padding: '20px', overflowY: 'auto' }}>
-                        <HeroSection />
-                        <SamplesGrid />
+                        {showSynchronisationScreen && selectedPersona !== null ? (
+                            <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} />
+                        ) : (
+                            <>
+                                <HeroSection onPersonaSelect={handlePersonaSelect} />
+                                <SamplesGrid onSynchronisationClick={handleSynchronisationClick} />
+                            </>
+                        )}                    
                     </main>
                 </div>
             </div>
