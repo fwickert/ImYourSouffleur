@@ -20,8 +20,7 @@ namespace ImYourSouffleur.Server.Controllers
         public ActionResult<List<Appointment>> Get([FromQuery] string persona)
         {
             var appointments = _appointmentService.GetAppointments(persona);
-            //sleep
-            System.Threading.Thread.Sleep(1000);
+            
             return Ok(appointments);
         }
     }

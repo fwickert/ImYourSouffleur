@@ -4,3 +4,8 @@ GET {{ImYourSouffleur.Server_HostAddress}}/api/customer/12345
 Accept: application/json
 
 ###
+
+GET {{ImYourSouffleur.Server_HostAddress}}/api/appointments?persona=Sales
+Accept: application/json
+
+###

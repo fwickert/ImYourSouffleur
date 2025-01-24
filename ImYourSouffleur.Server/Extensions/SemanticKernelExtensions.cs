@@ -16,36 +16,40 @@ namespace ImYourSouffleur.Server.Extensions
                 builder.Services.AddHttpClient();
 
                 Kernel kernel = builder.Build();
-                
+
                 return kernel;
             });
-
 
             return services;
         }
 
         private static IKernelBuilder WithCompletionBackend(this IKernelBuilder kernelBuilder, AIServiceOptions options)
         {
-           
-                return options.Type switch
+            foreach (var service in options.Services)
+            {
+                var serviceConfig = service.Value;
+                switch (serviceConfig.Type)
                 {
-                    AIServiceOptions.AIServiceType.AzureOpenAI
-                        => kernelBuilder.AddAzureOpenAIChatCompletion(
-                            deploymentName: options.Models.ChatDeploymentName,
-                            endpoint: options.Endpoint,
-                            serviceId: "AzureOpenAIChat",
-                            apiKey: options.Key),
-                    AIServiceOptions.AIServiceType.Local
-                        => kernelBuilder.AddOpenAIChatCompletion(
-                            modelId: options.Models.ChatDeploymentName,
+                    case AIServiceOptions.AIServiceType.AzureOpenAI:
+                        kernelBuilder.AddAzureOpenAIChatCompletion(
+                            deploymentName: serviceConfig.Models.ChatDeploymentName,
+                            endpoint: serviceConfig.Endpoint,
+                            apiKey: serviceConfig.Key,
+                            serviceId: serviceConfig.ServiceId);
+                        break;
+                    case AIServiceOptions.AIServiceType.Local:
+                        kernelBuilder.AddOpenAIChatCompletion(
+                            modelId: serviceConfig.Models.ChatDeploymentName,
                             apiKey: null,
-                            endpoint: new Uri(options.Endpoint)
-                            ),
-                    _
-                        => throw new ArgumentException($"Invalid {nameof(options.Type)} value in '{AIServiceOptions.PropertyName}' settings."),
-                };
-            
-            
+                            endpoint: new Uri(serviceConfig.Endpoint),
+                            serviceId: serviceConfig.ServiceId);
+                        break;
+                    default:
+                        throw new ArgumentException($"Invalid {nameof(serviceConfig.Type)} value in '{AIServiceOptions.PropertyName}' settings.");
+                }
+            }
+
+            return kernelBuilder;
         }
     }
 }

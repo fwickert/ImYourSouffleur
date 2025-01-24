@@ -37,6 +37,10 @@ const useStyles = makeStyles({
         alignItems: 'center',
         height: '100%',
     },
+    disabled: {
+        opacity: 0.5,
+        pointerEvents: 'none',
+    },
 });
 
 interface AppointmentsProps {
@@ -63,7 +67,7 @@ const Appointments: React.FC<AppointmentsProps> = ({ persona, onAppointmentsLoad
         };
 
         fetchAppointments();
-    }, [persona, onAppointmentsLoaded]);
+    }, [persona]);
 
     return (
         <div className={classes.container}>
@@ -75,7 +79,10 @@ const Appointments: React.FC<AppointmentsProps> = ({ persona, onAppointmentsLoad
             ) : (
                 <ul>
                     {appointments.map((appointment, index) => (
-                        <li key={index} className={classes.appointmentItem}>
+                        <li
+                            key={index}
+                            className={`${classes.appointmentItem} ${appointment.personal ? classes.disabled : ''}`}
+                        >
                             <div className={classes.appointmentTitle}>{appointment.title}</div>
                             <div className={classes.appointmentTime}>
                                 {new Date(appointment.start).toLocaleString()} - {new Date(appointment.end).toLocaleString()}

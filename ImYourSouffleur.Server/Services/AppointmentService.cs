@@ -9,18 +9,30 @@ namespace ImYourSouffleur.Server.Services
     public class AppointmentService
     {
         private readonly string _filePath = "Data/Appointments.json";
+        private readonly AgentService _agentService;
 
-        public List<Appointment> GetAppointments(string persona)
+        public AppointmentService(AgentService agentService)
+        {
+            _agentService = agentService;
+        }
+
+        public List<Appointment?> GetAppointments(string persona)
         {
             var json = File.ReadAllText(_filePath);
             var appointments = JsonSerializer.Deserialize<List<Appointment>>(json);
 
             if (!string.IsNullOrEmpty(persona))
             {
-                appointments = appointments.Where(a => a.Persona.Equals(persona, StringComparison.OrdinalIgnoreCase)).ToList();
+                appointments = appointments?.Where(a => a.Persona.Equals(persona, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            return appointments;
+            //call process appointment
+            foreach (var appointment in appointments!)
+            {
+                appointment.Personal = _agentService.PersonalOrNot(appointment).Result;
+            }
+
+            return appointments!;
         }
     }
 }

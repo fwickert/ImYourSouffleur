@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using System.Text.Json.Serialization;
 
 namespace ImYourSouffleur.Server.Models
@@ -7,8 +8,11 @@ namespace ImYourSouffleur.Server.Models
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
+
         [JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [JsonPropertyName("start")]
         public DateTime Start { get; set; }
@@ -17,13 +21,16 @@ namespace ImYourSouffleur.Server.Models
         public DateTime End { get; set; }
 
         [JsonPropertyName("persona")]
-        public string Persona { get; set; }
+        public string Persona { get; set; } = string.Empty;
 
         [JsonPropertyName("username")]
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         [JsonPropertyName("customerId")]
-        public string CustomerId { get; set; }
+        public string CustomerId { get; set; } = string.Empty;
+
+        [JsonPropertyName("personal")]
+        public bool Personal { get; set; }
     }
 
 }

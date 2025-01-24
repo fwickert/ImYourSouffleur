@@ -103,13 +103,14 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
 
         for (let i = 0; i < appointments.length; i++) {
             const appointment = appointments[i];
-            const loadedCustomer: Customer | null = await customerService.getCustomerById(appointment.customerId);
-            if (loadedCustomer !== null) {
-                loadedCustomers.push(loadedCustomer);
-                console.log(`Customer loaded : `, loadedCustomer);
+            if (!appointment.personal) {
+                const loadedCustomer: Customer | null = await customerService.getCustomerById(appointment.customerId);
+                if (loadedCustomer !== null) {
+                    loadedCustomers.push(loadedCustomer);
+                }
+                loadingStates[i] = false;
+                setLoadingCustomers([...loadingStates]);
             }
-            loadingStates[i] = false;
-            setLoadingCustomers([...loadingStates]);
         }
 
         setCustomers(loadedCustomers);
@@ -140,7 +141,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
                     disabled={loading}
                 />
                 <div className={classes.customersContainer}>
-                    {syncClicked && appointments.map((appointment, index) => (
+                    {syncClicked && appointments.filter(appointment => !appointment.personal).map((appointment, index) => (
                         <div key={index} className={classes.customerItem}>
                             {loadingCustomers[index] ? (
                                 <Spinner className={classes.spinner} />
@@ -152,6 +153,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
                         </div>
                     ))}
                 </div>
+
             </div>
         </div>
     );

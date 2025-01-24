@@ -24,7 +24,7 @@ namespace ImYourSouffleur.Server.Controllers
                 return NotFound();
             }
             //sleep
-            System.Threading.Thread.Sleep(1000);
+            //System.Threading.Thread.Sleep(1000);
             return Ok(customer);
         }
     }
