@@ -12,11 +12,9 @@ import {
 import SpeechRecognizer from './speechRecognizer';
 import { HubConnection } from '@microsoft/signalr';
 import { sendMessage } from '../services/ChatService';
-import { getHubConnection } from '../services/SignalR';
 import { ChatHistoryRequest, ChatMessage, AuthorRole } from '../models/ChatHistoryRequest';
-import { textToSpeechAsync } from '../services/SpeechService';
 import { TypingIndicator } from './TypingIndicator';
-import { Spinner } from '@fluentui/react-components';
+
 
 const useStyles = makeStyles({
     chatContainer: {
@@ -104,34 +102,25 @@ const useStyles = makeStyles({
 
 interface Message {
     content: string;
-    authorRole: AuthorRole;
+    authorRole: AuthorRole;    
 }
 
 interface ChatProps {
     onBack: () => void;
+    connection: HubConnection | null;
 }
 
-const Chat: React.FC<ChatProps> = ({ onBack }) => {
+const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
     const styles = useStyles();
     const [inputText, setInputText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
-    const [connection, setConnection] = useState<HubConnection | null>(null);
     const currentMessageRef = useRef<string | null>(null);
     const [isTyping, setIsTyping] = useState<boolean>(false);
-    const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
 
     useEffect(() => {
-        const setupConnection = async () => {
-            try {
-                const newConnection = await getHubConnection();
-                setConnection(newConnection);
-                setupConnectionHandlers(newConnection);
-            } catch (error) {
-                console.error('Connection failed: ', error);
-            }
-        };
-
-        setupConnection();
+        if (connection) {
+            setupConnectionHandlers(connection);
+        }
     }, []);
 
     const removeConnectionHandlers = (connection: HubConnection) => {
@@ -147,76 +136,113 @@ const Chat: React.FC<ChatProps> = ({ onBack }) => {
             setIsTyping(true);
         });
 
-        connection.on('InProgressMessageUpdate', (message: Message) => {
+        connection.on('InProgressMessageUpdate', (message: string) => {
             setIsTyping(false);
-            currentMessageRef.current = message.content;
+
+            currentMessageRef.current = message;
 
             setMessages(prevMessages => {
-                const existingMessageIndex = prevMessages.findIndex(msg => msg.content === message.content);
-                if (existingMessageIndex !== -1) {
-                    const updatedMessages = [...prevMessages];
-                    updatedMessages[existingMessageIndex] = { ...updatedMessages[existingMessageIndex], content: message.content };
-                    return updatedMessages;
+                const updatedMessages = [...prevMessages];
+                const lastMessage = updatedMessages[updatedMessages.length - 1];
+                if (lastMessage && lastMessage.authorRole === AuthorRole.Assistant) {
+                    // Update the last assistant message
+                    updatedMessages[updatedMessages.length - 1] = { ...lastMessage, content: message };
                 } else {
-                    return [...prevMessages, {
-                        content: message.content,
+                    // Add a new assistant message if the last message is not from the assistant
+                    updatedMessages.push({
+                        content: message,
                         authorRole: AuthorRole.Assistant
-                    }];
+                        
+                    });
                 }
+
+                return updatedMessages;
             });
         });
 
-        connection.on('EndMessageUpdate', (message: any) => {
-            setMessages(prevMessages => {
-                const updatedMessages = [...prevMessages];
-                // Find the last assistant message
-                const lastMessage = updatedMessages.slice().reverse().find(msg => msg.authorRole === AuthorRole.Assistant);
-                if (lastMessage) {
-                    lastMessage.content = message.content;
-                }
-                return updatedMessages;
-            });
-
-            textToSpeechAsync(message.content);
+        connection.on('EndMessageUpdate', (_: string) => {
+            // Handle end message update
         });
     };
 
-    const handleNewMessage = async (message: string, mic: boolean) => {
+    const handleNewMessage = (message: string) => {
         setMessages(prevMessages => {
-            const updatedMessages = [...prevMessages];
-            if (mic) {
-                // Check if the last message is a mic user message
-                const lastMessage = updatedMessages[updatedMessages.length - 1];
-                if (lastMessage && lastMessage.authorRole === AuthorRole.User && lastMessage.isFromMic) {
-                    // Update the existing mic message
-                    updatedMessages[updatedMessages.length - 1] = { ...lastMessage, content: message };
-                } else {
-                    // Add a new mic message
-                    updatedMessages.push({ content: message, authorRole: AuthorRole.User, isFromMic: true });
-                }
-            } else {
+            const updatedMessages = [...prevMessages];            
                 // Add a new non-mic user message
-                updatedMessages.push({ content: message, authorRole: AuthorRole.User });
-            }
+                updatedMessages.push({ content: message, authorRole: AuthorRole.User});           
+            
             return updatedMessages;
         });
+    };
 
+    const sendMessageToServer = async (message: string) => {
         const chatHistory = new ChatHistoryRequest([
             ...messages.map(msg => new ChatMessage(msg.content, msg.authorRole)),
             new ChatMessage(message, AuthorRole.User)
         ]);
 
-        // await sendMessage(chatHistory, connection?.connectionId);
-    };
+        console.log('Sending history to server:', chatHistory);
+
+        await sendMessage(chatHistory, connection?.connectionId);
+    }
 
     const handleSendClick = () => {
-        handleNewMessage(inputText, false);
+        handleNewMessage(inputText);
+        sendMessageToServer(inputText);
         setInputText('');
     };
 
     const handleNewMessageFromSpeech = (message: string) => {
-        handleNewMessage(message, true);
+        setMessages(prevMessages => {
+            const updatedMessages = [...prevMessages];
+            const lastMessageIndex = updatedMessages.length - 1;
+            if (lastMessageIndex >= 0 && updatedMessages[lastMessageIndex].authorRole === AuthorRole.User) {
+                // Update the last user message
+                updatedMessages[lastMessageIndex] = {
+                    ...updatedMessages[lastMessageIndex],
+                    content: message
+                };
+            } else {
+                // Add a new user message if the last message is not from the user
+                updatedMessages.push({
+                    content: message,
+                    authorRole: AuthorRole.User
+                });
+            }
+            return updatedMessages;
+        });
     };
+
+    const onEndedSpeechMessage = async (finalMessage: string) => {
+        // Update the messages state with the final speech message
+        setMessages(prevMessages => {
+            const updatedMessages = [...prevMessages];
+            const lastMessageIndex = updatedMessages.length - 1;
+
+            if (lastMessageIndex >= 0 && updatedMessages[lastMessageIndex].authorRole === AuthorRole.User) {
+                // Update the last user message with the final speech input
+                updatedMessages[lastMessageIndex] = {
+                    ...updatedMessages[lastMessageIndex],
+                    content: finalMessage
+                };
+            } else {
+                // Add a new user message if the last message is not from the user
+                updatedMessages.push({
+                    content: finalMessage,
+                    authorRole: AuthorRole.User
+                });
+            }
+
+            // Send the updated messages to the server
+            const chatHistory = new ChatHistoryRequest(
+                updatedMessages.map(msg => new ChatMessage(msg.content, msg.authorRole))
+            );
+            sendMessage(chatHistory, connection?.connectionId);
+
+            return updatedMessages;
+        });
+    };
+
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
@@ -231,8 +257,7 @@ const Chat: React.FC<ChatProps> = ({ onBack }) => {
                 onClick={onBack}
                 className={styles.backButton}
             />
-            {isLoadingMessages && <div className={styles.spinnerOverlay}><Spinner /></div>}
-            <div className={styles.messagesContainer} style={{ pointerEvents: isLoadingMessages ? 'none' : 'auto' }}>
+            <div className={styles.messagesContainer}>
                 {messages.map((msg, index) => (
                     <div key={index} className={styles.messageContainer}>
                         <div className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}>
@@ -249,11 +274,11 @@ const Chat: React.FC<ChatProps> = ({ onBack }) => {
                     onChange={(_e, data) => setInputText(data.value)}
                     onKeyDown={handleKeyDown}
                     className={`${styles.inputField}`}
-                    disabled={isLoadingMessages}
+                    disabled={false}
                 />
-                <Button icon={<SendFilled />} onClick={handleSendClick} disabled={isLoadingMessages} />
+                <Button icon={<SendFilled />} onClick={handleSendClick} disabled={false} />
                 <div className="micButtonContainer">
-                    <SpeechRecognizer onNewMessage={handleNewMessageFromSpeech} />
+                    <SpeechRecognizer onNewMessage={handleNewMessageFromSpeech} onEndedSpeechMessage={onEndedSpeechMessage} connection={connection} />
                 </div>
             </div>
         </div>

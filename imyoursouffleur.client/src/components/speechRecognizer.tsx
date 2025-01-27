@@ -2,41 +2,39 @@ import { useState, useEffect } from 'react';
 import { Button } from '@fluentui/react-button';
 import { MicRegular } from "@fluentui/react-icons";
 import { getMicroRecognitionAsync } from '../services/SpeechService';
-import { getHubConnection } from '../services/SignalR';
+import { HubConnection } from '@microsoft/signalr';
 import './speechRecognizer.css';
 
 interface SpeechRecognizerProps {
     onNewMessage: (message: string) => void;
+    onEndedSpeechMessage: (message: string) => void;
+    connection: HubConnection | null;
 }
 
-const SpeechRecognizer: React.FC<SpeechRecognizerProps> = ({ onNewMessage }) => {
+const SpeechRecognizer: React.FC<SpeechRecognizerProps> = ({ onNewMessage, onEndedSpeechMessage, connection }) => {
     const [isMicOn, setIsMicOn] = useState(false);
-    
 
     useEffect(() => {
-        const setupSignalRConnection = async () => {
-            const connection = await getHubConnection();
-            connection.on('ReceiveMessageInProgress', (message: string) => {                
+        if (connection) {
+            connection.on('ReceiveMessageInProgress', (message: string) => {
                 onNewMessage(message);
             });
-            connection.on('ReceiveMessageEnd', (message: string) => {                
-                onNewMessage(message);
+            connection.on('ReceiveMessageEnd', (message: string) => {
+                //onNewMessage(message);
+                onEndedSpeechMessage(message); // Call onEndedSpeechMessage when speech ends
                 setIsMicOn(false);
             });
-        };
-
-        setupSignalRConnection();
-    }, [onNewMessage]);
+        }
+    }, [connection]);
 
     const startRecognition = async () => {
         try {
             setIsMicOn(true);
             // Create an empty user message
-            onNewMessage('');
-            const text = await getMicroRecognitionAsync("fr-FR");            
+            //onNewMessage('');
+            await getMicroRecognitionAsync("fr-FR");
         } catch (error) {
-            //console.error('Error starting speech recognition:');
-            
+            //console.error('Error starting speech recognition:', error);
         }
     };
 

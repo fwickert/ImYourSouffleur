@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FluentProvider, webDarkTheme } from '@fluentui/react-components';
 import Sidebar from './components/Sidebar';
 import HeroSection from './components/HeroSection';
@@ -6,18 +6,34 @@ import SamplesGrid from './components/SamplesGrid';
 import Synchronisation from './components/Synchronisation';
 import Chat from './components/chat';
 import { Persona } from './models/Persona';
+import { HubConnection } from '@microsoft/signalr';
+import { getHubConnection } from './services/SignalR';
 
 const App: React.FC = () => {
     const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
     const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
     const [showChat, setShowChat] = useState<boolean>(false);
+    const [connection, setConnection] = useState<HubConnection | null>(null);
 
     const personas: Persona[] = [
-        { name: 'Vendeurs', type:"Sales", prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
-        { name: 'Maintenance', type:"FieldService" , prompt: 'Démarre ta journée en synchronisant tes données de maintenance.', image: '/fieldservice.jpeg' },
+        { name: 'Vendeurs', type: "Sales", prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
+        { name: 'Maintenance', type: "FieldService", prompt: 'Démarre ta journée en synchronisant tes données de maintenance.', image: '/fieldservice.jpeg' },
         { name: 'Beauty Advisor', type: "FieldService", prompt: 'Démarre ta journée en synchronisant tes données de beauté.', image: '/retail.jpeg' },
         { name: 'Finance', type: "FieldService", prompt: 'Démarre ta journée en synchronisant tes données financières.', image: '/finance.jpeg' },
     ];
+
+    useEffect(() => {
+        const setupConnection = async () => {
+            try {
+                const newConnection = await getHubConnection();
+                setConnection(newConnection);
+            } catch (error) {
+                console.error('Connection failed: ', error);
+            }
+        };
+
+        setupConnection();
+    }, []);
 
     const handlePersonaSelect = (index: number) => {
         setSelectedPersona(index);
@@ -31,7 +47,6 @@ const App: React.FC = () => {
         setShowSynchronisationScreen(false);
         setShowChat(false);
     };
-
 
     const handleCoachClick = () => {
         setShowChat(true);
@@ -67,7 +82,7 @@ const App: React.FC = () => {
                         {showSynchronisationScreen && selectedPersona !== null ? (
                             <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} />
                         ) : showChat ? (
-                                <Chat onBack={handleBackClick} />
+                            <Chat onBack={handleBackClick} connection={connection} />
                         ) : (
                             <>
                                 <HeroSection onPersonaSelect={handlePersonaSelect} />

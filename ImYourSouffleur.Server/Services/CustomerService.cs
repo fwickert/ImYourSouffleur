@@ -10,15 +10,8 @@ namespace ImYourSouffleur.Server.Services
     public class CustomerService
     {
         private readonly string _dataDirectory = "Data";
-        private readonly Kernel _kernel;
-        private readonly AgentService _agentService;
-
-        public CustomerService(Kernel kernel)
-        {
-            _kernel = kernel;
-            _agentService = new AgentService(kernel);
-        }
-
+        
+        
         public Customer? GetCustomerById(string customerId)
         {
             var filePath = Path.Combine(_dataDirectory, $"Customer{customerId}.json");

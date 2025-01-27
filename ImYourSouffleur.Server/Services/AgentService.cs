@@ -9,16 +9,25 @@ using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using ImYourSouffleur.Server.Models;
+using ImYourSouffleur.Server.Models.Request;
+
+using Microsoft.Extensions.Logging;
+using ImYourSouffleur.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace ImYourSouffleur.Server.Services
 {
     public class AgentService
     {
         private readonly Kernel _kernel;
+        private readonly IHubContext<MessageRelayHub> _messageRelayHubContext;
 
-        public AgentService(Kernel kernel)
+        public AgentService([FromServices] Kernel kernel, [FromServices] IHubContext<MessageRelayHub> messageRelayHubContext)
         {
             _kernel = kernel;
+            _messageRelayHubContext = messageRelayHubContext;
         }
 
         public async Task<string> GetCustomerSummary(Customer customer)
@@ -38,7 +47,7 @@ namespace ImYourSouffleur.Server.Services
             string jsonCustomer = JsonSerializer.Serialize(customer);
             string systemprompt = "Voici les informations du client : \n\n" + jsonCustomer;
 
-            ChatHistory chats = [new(AuthorRole.User, systemprompt)];
+            ChatHistory chats = [new(Microsoft.SemanticKernel.ChatCompletion.AuthorRole.User, systemprompt)];
 
             string summary = string.Empty;
             await foreach (ChatMessageContent response in agent.InvokeAsync(chats, new(new OpenAIPromptExecutionSettings() { ServiceId = "Cloud4omini" })))
@@ -66,7 +75,7 @@ namespace ImYourSouffleur.Server.Services
             string jsonAppointment = JsonSerializer.Serialize(appointment);
             string systemprompt = "Here are the details of the appointment: \n\n" + jsonAppointment;
 
-            ChatHistory chats = [new(AuthorRole.User, systemprompt)];
+            ChatHistory chats = [new(Microsoft.SemanticKernel.ChatCompletion.AuthorRole.User, systemprompt)];
 
             string responseContent = string.Empty;
             await foreach (ChatMessageContent response in agent.InvokeAsync(chats, new(new OpenAIPromptExecutionSettings() { ServiceId = "Cloud4omini" })))
@@ -79,6 +88,59 @@ namespace ImYourSouffleur.Server.Services
 
             //appointment.Personal = isPersonal;
             return isPersonal;
+        }
+
+
+        public async Task ChatResponse(ChatHistoryRequest chats, string connectionId)
+        {
+            await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
+
+            ChatCompletionAgent agent = new()
+            {
+                Name = "ChatService",
+                Instructions = "Your are a assistant and you chat with the user",
+                Kernel = _kernel,
+                Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
+                {
+                    ServiceId = "Cloud4omini",
+                })
+            };
+
+            ChatHistory SKHistory = new ChatHistory();
+            foreach (var message in chats.Messages)
+            {
+                switch (message.Role)
+                {
+                    case Models.Request.AuthorRole.User:
+                        SKHistory.AddUserMessage(message.Content);
+                        break;
+                    case Models.Request.AuthorRole.System:
+                        SKHistory.AddSystemMessage(message.Content);
+                        break;
+                    case Models.Request.AuthorRole.Assistant:
+                        SKHistory.AddAssistantMessage(message.Content);
+                        break;
+                }
+            }
+
+            string responseContent = string.Empty;
+            await foreach (StreamingChatMessageContent response in agent.InvokeStreamingAsync(SKHistory))//, new(new OpenAIPromptExecutionSettings() { ServiceId = "phi-3.5-mini-instruct" })))
+            {
+                responseContent += response.Content;
+                if (!string.IsNullOrEmpty(responseContent))
+                {                    
+                    await this.UpdateMessageOnClient("InProgressMessageUpdate", responseContent, connectionId);
+                }
+
+            }
+
+            await this.UpdateMessageOnClient("EndMessageUpdate", responseContent, connectionId);
+
+        }
+
+        private async Task UpdateMessageOnClient(string hubconnection, string message, string connectionId)
+        {
+            await this._messageRelayHubContext.Clients.Client(connectionId).SendAsync(hubconnection, message);
         }
     }
 }
