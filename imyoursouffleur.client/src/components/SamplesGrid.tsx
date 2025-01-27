@@ -3,9 +3,10 @@ import SampleCard from './SampleCard';
 
 interface SamplesGridProps {
     onSynchronisationClick: () => void;
+    onCoachClick: () => void;
 }
 
-const SamplesGrid: React.FC<SamplesGridProps> = ({ onSynchronisationClick }) => {
+const SamplesGrid: React.FC<SamplesGridProps> = ({ onSynchronisationClick, onCoachClick }) => {
     const samples = [
         { title: 'Synchronisation', description: 'Démarre ta journée en synchronisant tes données', buttonLabel: 'Synchronisation' },
         { title: 'Coach', description: 'Avant ton rendez-vous, recoit quelques informations sur ton clienbt', buttonLabel: 'Informations' },
@@ -16,6 +17,8 @@ const SamplesGrid: React.FC<SamplesGridProps> = ({ onSynchronisationClick }) => 
     const handleButtonClick = (buttonLabel: string) => {
         if (buttonLabel === 'Synchronisation') {
             onSynchronisationClick();
+        } else if (buttonLabel === 'Informations') {
+            onCoachClick();
         }
     };
 

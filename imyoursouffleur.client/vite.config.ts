@@ -37,6 +37,8 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7044';
 
+const hubUrl = target === undefined ? "/messageRelayHUb": `${target}/messageRelayHub`;
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
@@ -56,6 +58,11 @@ export default defineConfig({
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
+        }
+    },
+    define: {
+        'process.env': {
+            HUB_URL: hubUrl
         }
     }
 })

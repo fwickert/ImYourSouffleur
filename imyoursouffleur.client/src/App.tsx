@@ -4,11 +4,13 @@ import Sidebar from './components/Sidebar';
 import HeroSection from './components/HeroSection';
 import SamplesGrid from './components/SamplesGrid';
 import Synchronisation from './components/Synchronisation';
+import Chat from './components/chat';
 import { Persona } from './models/Persona';
 
 const App: React.FC = () => {
     const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
     const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
+    const [showChat, setShowChat] = useState<boolean>(false);
 
     const personas: Persona[] = [
         { name: 'Vendeurs', type:"Sales", prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
@@ -27,6 +29,12 @@ const App: React.FC = () => {
 
     const handleBackClick = () => {
         setShowSynchronisationScreen(false);
+        setShowChat(false);
+    };
+
+
+    const handleCoachClick = () => {
+        setShowChat(true);
     };
 
     return (
@@ -58,12 +66,14 @@ const App: React.FC = () => {
                     <main style={{ padding: '20px', overflowY: 'auto' }}>
                         {showSynchronisationScreen && selectedPersona !== null ? (
                             <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} />
+                        ) : showChat ? (
+                                <Chat onBack={handleBackClick} />
                         ) : (
                             <>
                                 <HeroSection onPersonaSelect={handlePersonaSelect} />
-                                <SamplesGrid onSynchronisationClick={handleSynchronisationClick} />
+                                <SamplesGrid onSynchronisationClick={handleSynchronisationClick} onCoachClick={handleCoachClick} />
                             </>
-                        )}                    
+                        )}
                     </main>
                 </div>
             </div>

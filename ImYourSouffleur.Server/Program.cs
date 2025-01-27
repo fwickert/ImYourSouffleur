@@ -3,6 +3,9 @@ using ImYourSouffleur.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddSTT(builder.Configuration);
+
 builder.Services
     .AddSingleton<ILogger>(sp => sp.GetRequiredService<ILogger<Program>>()) // some services require an un-templated ILogger
     .AddOptions(builder.Configuration)

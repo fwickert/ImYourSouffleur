@@ -63,10 +63,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onPersonaSelect }) => {
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
     const cards: Persona[] = [
-        {type:'Sales', name: 'Vendeurs', prompt: 'Démarre ta journ e en synchronisant tes donn es de vente.', image: '/sales.jpeg' },
-        { type: 'Sales', name: 'Maintenance', prompt: 'D marre ta journ e en synchronisant tes donn es de maintenance.', image: '/fieldservice.jpeg' },
-        { type: 'Sales', name: 'Beauty Advisor', prompt: 'D marre ta journ e en synchronisant tes donn es de beaut .', image: '/retail.jpeg' },
-        { type: 'Sales', name: 'Finance', prompt: 'D marre ta journ e en synchronisant tes donn es financi res.', image: '/finance.jpeg' },
+        {type:'Sales', name: 'Vendeurs', prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
+        { type: 'FieldService', name: 'Maintenance', prompt: 'D marre ta journ e en synchronisant tes donn es de maintenance.', image: '/fieldservice.jpeg' },
+        { type: 'Retail', name: 'Beauty Advisor', prompt: 'Démarre ta journ e en synchronisant tes donn es de beaut .', image: '/retail.jpeg' },
+        { type: 'Finance', name: 'Finance', prompt: 'D marre ta journ e en synchronisant tes donn es financi res.', image: '/finance.jpeg' },
     ];
 
     const handleCardClick = (index: number) => {

@@ -141,7 +141,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
                     disabled={loading}
                 />
                 <div className={classes.customersContainer}>
-                    {syncClicked && appointments.filter(appointment => !appointment.personal).map((appointment, index) => (
+                    {syncClicked && appointments.filter(appointment => !appointment.personal).map((_, index) => (
                         <div key={index} className={classes.customerItem}>
                             {loadingCustomers[index] ? (
                                 <Spinner className={classes.spinner} />

@@ -1,5 +1,9 @@
-﻿using ImYourSouffleur.Server.Options;
+﻿using ImYourSouffleur.Server.Models;
+using ImYourSouffleur.Server.Options;
 using ImYourSouffleur.Server.Services;
+using ImYourSouffleur.Server.Voice;
+using Microsoft.CognitiveServices.Speech.Audio;
+using Microsoft.CognitiveServices.Speech;
 using System.Reflection;
 
 
@@ -10,7 +14,7 @@ namespace ImYourSouffleur.Server.Extensions
     {
         public static IServiceCollection AddOptions(this IServiceCollection services, ConfigurationManager configuration)
         {
-            
+
             AddOptions<SpeechOptions>(SpeechOptions.PropertyName);
             AddOptions<AIServiceOptions>(AIServiceOptions.PropertyName);
 
@@ -31,7 +35,7 @@ namespace ImYourSouffleur.Server.Extensions
                 .Bind(section)
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
-                //.PostConfigure(TrimStringProperties);
+            //.PostConfigure(TrimStringProperties);
         }
 
         //private static void TrimStringProperties<T>(T options) where T : class
@@ -104,9 +108,55 @@ namespace ImYourSouffleur.Server.Extensions
             services.AddScoped<CustomerService>();
             services.AddScoped<AgentService>();
 
+
             return services;
         }
+
+        public static IServiceCollection AddSTT(this IServiceCollection services, ConfigurationManager configuration)
+        {
+            //Create list and asssingleton of
+
+            List<Speeches> recognizers = new List<Speeches>();
+
+            //var env = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
+
+            string lang = "fr-FR";
+            //Settings.SpeechRecognitionLocale = lang;
+            //Settings.SpeechSynthesisLocale = lang;
+            Settings.EmbeddedSpeechRecognitionModelName = lang;
+
+            var result = Settings.VerifySettingsAsync().Result;
+            if (!result)
+            {
+                return services;
+            }
+
+            var speechConfig = Settings.CreateEmbeddedSpeechConfig();
+            
+            var audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+            audioConfig.SetProperty(PropertyId.Speech_SegmentationStrategy, "Time");
+            audioConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "1000");
+            //audioConfig.SetProperty(PropertyId.Conversation_Initial_Silence_Timeout, "200");
+            //audioConfig.SetProperty(PropertyId.SpeechServiceConnection_EndSilenceTimeoutMs, "200");
+
+            var recognizer = new SpeechRecognizer(speechConfig, audioConfig);
+
+            //create speeches object with prop
+            Speeches speech = new()
+            {
+                Language = lang,
+                Recognizers = recognizer
+            };
+
+            recognizers.Add(speech);
+            services.AddSingleton<List<Speeches>>(recognizers);
+
+            services.AddSingleton<SpeechRecognitionService>();
+
+            return services;
+
+
+        }
+
     }
-
-
 }
