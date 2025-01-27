@@ -1,0 +1,17 @@
+{
+  "lang": "en-us",
+  "name": "Coach et Souffleur",
+  "short_name": "Coach et Souffleur demo",
+  "description": "Coach et Souffleur demo",
+  "start_url": "/",
+  "background_color": "#2f3d58",
+  "theme_color": "#2f3d58",
+  "orientation": "any",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/assets/icon512.png",
+      "sizes": "512x512"
+    }
+  ]
+}
