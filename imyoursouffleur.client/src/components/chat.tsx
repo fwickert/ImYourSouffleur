@@ -17,6 +17,7 @@ import { TypingIndicator } from './TypingIndicator';
 import { renderMarkdown } from '../utilities/MarkdownRenderer';
 import { useCustomers } from '../models/CustomerContext';
 import CustomerList from './CustomerList';
+import { Customer } from '../models/Customer';
 
 const useStyles = makeStyles({
     chatContainer: {
@@ -64,6 +65,7 @@ const useStyles = makeStyles({
         //marginBottom: '10px',
         alignSelf: 'flex-end',
         maxWidth: '50%',
+        color:'#ff69b4',
     },
     assistantMessage: {
         //backgroundColor: '#e0e0e0',
@@ -72,7 +74,7 @@ const useStyles = makeStyles({
         //marginBottom: '10px',
         alignSelf: 'flex-start',
         maxWidth: '50%',
-        color: 'pink',
+        color: '#fff',
     },
     messageContainer: {
         display: 'flex',
@@ -104,6 +106,14 @@ const useStyles = makeStyles({
         flex: '0 0 10%', // Adjust the width as needed
         marginRight: '10px',
     },
+    customerSummary: {
+        margin: '10px',
+        padding: '10px',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        backgroundColor: '#000',
+        color: '#fff',
+    },
 });
 
 interface Message {
@@ -116,14 +126,18 @@ interface ChatProps {
     onBack: () => void;
     connection: HubConnection | null;
     isOnline: boolean;
+    selectedCustomer: Customer | null; // Add selectedCustomer prop
+    setSelectedCustomer: (customer: Customer | null) => void; // Add setSelectedCustomer prop
 }
 
-const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
+const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCustomer, setSelectedCustomer }) => {
     const styles = useStyles();
     const [inputText, setInputText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const currentMessageRef = useRef<string | null>(null);
     const [isTyping, setIsTyping] = useState<boolean>(false);
+
+    const customers = useCustomers().customers;
 
     useEffect(() => {
         if (connection) {
@@ -187,10 +201,10 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
     };
 
     const sendMessageToServer = async (message: string) => {
-        const chatHistory = new ChatHistoryRequest([
+        const chatHistory = new ChatHistoryRequest(selectedCustomer ? selectedCustomer!.summary + selectedCustomer!.documentation : '', [
             ...messages.map(msg => new ChatMessage(msg.content, msg.authorRole)),
             new ChatMessage(message, AuthorRole.User)
-        ]);
+        ],);
 
         console.log('Sending history to server:', chatHistory);
 
@@ -227,22 +241,25 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
         });
     };
 
-    const onEndedSpeechMessage = async (finalMessage: string) => {
-        // Update the messages state with the final speech message
-        const renderedContent = await renderMarkdown(finalMessage);
+    const onEndedSpeechMessage = async (finalMessage: string, selectedCustomer: Customer | null) => {
+        if (!selectedCustomer) {
+            return;
+        }
+
+        console.log('Customer :', selectedCustomer);
+
+        const renderedContent = finalMessage;
         setMessages(prevMessages => {
             const updatedMessages = [...prevMessages];
             const lastMessageIndex = updatedMessages.length - 1;
 
             if (lastMessageIndex >= 0 && updatedMessages[lastMessageIndex].authorRole === AuthorRole.User) {
-                // Update the last user message with the final speech input
                 updatedMessages[lastMessageIndex] = {
                     ...updatedMessages[lastMessageIndex],
                     content: finalMessage,
                     renderedContent
                 };
             } else {
-                // Add a new user message if the last message is not from the user
                 updatedMessages.push({
                     content: finalMessage,
                     authorRole: AuthorRole.User,
@@ -250,15 +267,19 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
                 });
             }
 
-            // Send the updated messages to the server
             const chatHistory = new ChatHistoryRequest(
+                selectedCustomer ? selectedCustomer.summary + selectedCustomer.documentation : "",
                 updatedMessages.map(msg => new ChatMessage(msg.content, msg.authorRole))
             );
+
+            
+
             sendMessage(chatHistory, isOnline, connection?.connectionId);
 
             return updatedMessages;
         });
     };
+
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
@@ -267,14 +288,25 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
     };
 
     const handleSelectCustomer = (customerId: string) => {
-        console.log('Selected customer ID:', customerId);
-        // Handle customer selection logic here
+        // Find the customer in the context
+
+        const customer = customers.find(c => c.customerId === customerId);
+        if (customer) {
+            setSelectedCustomer(customer);
+            //console.log('Selected customer:', selectedCustomer);
+        }
     };
 
     return (
         <div className={styles.chatContainer}>
             <div className={styles.customerListContainer}>
                 <CustomerList onSelectCustomer={handleSelectCustomer} />
+                {selectedCustomer && (
+                    <div className={styles.customerSummary}>
+                        <h3>Customer Summary</h3>
+                        <p>{selectedCustomer.summary + selectedCustomer.documentation}</p>
+                    </div>
+                )}
             </div>
             <div>
                 <Button
@@ -282,6 +314,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
                     onClick={onBack}
                     className={styles.backButton}
                 />
+
                 <div className={styles.messagesContainer}>
                     {messages.map((msg, index) => (
                         <div key={index} className={styles.messageContainer}>
@@ -304,7 +337,12 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
                     />
                     <Button icon={<SendFilled />} onClick={handleSendClick} disabled={false} />
                     <div className="micButtonContainer">
-                        <SpeechRecognizer onNewMessage={handleNewMessageFromSpeech} onEndedSpeechMessage={onEndedSpeechMessage} connection={connection} />
+                        <SpeechRecognizer
+                            onNewMessage={handleNewMessageFromSpeech}
+                            onEndedSpeechMessage={onEndedSpeechMessage}
+                            connection={connection}
+                            selectedCustomer={selectedCustomer} // Pass selectedCustomer
+                        />
                     </div>
                 </div>
             </div>

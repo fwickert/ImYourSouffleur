@@ -10,6 +10,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md" />
+    <None Remove="Data\MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md" />
+    <None Remove="Data\surfacehub.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\surfacehub.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.*-*</Version>

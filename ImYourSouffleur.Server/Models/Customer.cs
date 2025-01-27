@@ -91,4 +91,10 @@ public class Customer
 
     [JsonPropertyName("customerServiceHistory")]
     public List<ServiceHistory> CustomerServiceHistory { get; set; }
+
+    [JsonPropertyName("summary")]
+    public string Summary { get; set; }
+
+    [JsonPropertyName("documentation")]
+    public string Documentation { get; set; }
 }

@@ -1,9 +1,4 @@
-using System;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
-using ImYourSouffleur.Server.Models;
-using Microsoft.SemanticKernel;
 
 namespace ImYourSouffleur.Server.Services
 {
@@ -36,7 +31,10 @@ namespace ImYourSouffleur.Server.Services
             if (customer != null)
             {
                 string summary = await _agentService.GetCustomerSummary(customer, endpoint);
-                Console.WriteLine(summary);
+                customer.Summary = summary;
+
+                string documentation = await _agentService.GetDocumentation(customer.CustomerId);
+                customer.Documentation = documentation;
             }
 
             return customer;

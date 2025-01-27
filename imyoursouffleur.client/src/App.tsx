@@ -10,6 +10,7 @@ import { Persona } from './models/Persona';
 import { HubConnection } from '@microsoft/signalr';
 import { getHubConnection } from './services/SignalR';
 import { CustomerProvider } from './models/CustomerContext'; // Import CustomerProvider
+import { Customer } from './models/Customer'; // Import Customer
 
 const App: React.FC = () => {
     const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
@@ -17,6 +18,7 @@ const App: React.FC = () => {
     const [showChat, setShowChat] = useState<boolean>(false);
     const [connection, setConnection] = useState<HubConnection | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null); // Add selectedCustomer state
 
     const personas: Persona[] = [
         { name: 'Vendeurs', type: "Sales", prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
@@ -101,7 +103,13 @@ const App: React.FC = () => {
                             {showSynchronisationScreen && selectedPersona !== null ? (
                                 <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} isOnline={isOnline} />
                             ) : showChat ? (
-                                <Chat onBack={handleBackClick} connection={connection} isOnline={isOnline} />
+                                <Chat
+                                    onBack={handleBackClick}
+                                    connection={connection}
+                                    isOnline={isOnline}
+                                    selectedCustomer={selectedCustomer}
+                                    setSelectedCustomer={setSelectedCustomer} // Pass setSelectedCustomer
+                                />
                             ) : (
                                 <>
                                     <HeroSection onPersonaSelect={handlePersonaSelect} />

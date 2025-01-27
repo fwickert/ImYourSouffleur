@@ -28,4 +28,6 @@ export interface Customer {
     address: Address;
     purchaseHistory: Purchase[];
     customerServiceHistory: CustomerServiceHistory[];
+    summary: string;
+    documentation: string;
 }

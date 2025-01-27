@@ -23,6 +23,7 @@ namespace ImYourSouffleur.Server.Services
     {
         private readonly Kernel _kernel;
         private readonly IHubContext<MessageRelayHub> _messageRelayHubContext;
+        private readonly string _dataDirectory = "Data";
 
         public AgentService([FromServices] Kernel kernel, [FromServices] IHubContext<MessageRelayHub> messageRelayHubContext)
         {
@@ -90,15 +91,66 @@ namespace ImYourSouffleur.Server.Services
             return isPersonal;
         }
 
+        public async Task<string> GetDocumentation(string customerID)
+        {
+            // Load file in data folder based on customerID
+            string surfaceDoc="";
+            if (customerID == "12345")
+            {
+                surfaceDoc = File.ReadAllText(Path.Combine(_dataDirectory, "MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md"));
+                surfaceDoc += "\n\n" + File.ReadAllText(Path.Combine(_dataDirectory, "MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md"));
+            }
+            else if (customerID == "6789")
+            {
+                surfaceDoc = File.ReadAllText(Path.Combine(_dataDirectory, "surfacehub.md"));
+            }
+           
+
+            // Create the instruction
+            string instruction = "Get summary of the documentation. This documentation must be useful if a salesperson asks for advice to the AI." +
+                " \n\n[Documentation to summarize]\n\n" +
+                surfaceDoc + "\n\n[END]";
+
+            ChatCompletionAgent agent = new()
+            {
+                Name = "DocumentationService",
+                Instructions = instruction,
+                Kernel = _kernel,
+                Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
+                {
+                    ServiceId = "Cloud4omini",
+                })
+            };
+            ChatHistory chats = new ChatHistory();
+            chats.AddUserMessage(customerID);
+            string responseContent = string.Empty;
+            await foreach (ChatMessageContent response in agent.InvokeAsync(chats))
+            {
+                responseContent += response.Content;
+            }
+            return responseContent;
+        }
+
 
         public async Task ChatResponse(ChatHistoryRequest chats, string endpoint, string connectionId)
         {
             await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
 
+            string instruction = "[KNOWLEDGE]\n\n" 
+                + chats.Context + "\n\n" +
+                "You are an assistant to help the salesperson to find the best information to argument and sales product to a customer.\n\n" +
+                "Be short in your answers";
+
+            //add special info if localSLM
+            if (endpoint == "Localphi3")
+            {
+                instruction += "\n\nAnswer in same language that the User";
+            }
+
             ChatCompletionAgent agent = new()
             {
                 Name = "ChatService",
-                Instructions = "Your are a assistant and you chat with the user",
+                Instructions = instruction,
                 Kernel = _kernel,
                 Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
                 {

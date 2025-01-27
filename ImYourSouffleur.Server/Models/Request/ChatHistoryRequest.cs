@@ -1,7 +1,8 @@
 ﻿namespace ImYourSouffleur.Server.Models.Request
 {
     public class ChatHistoryRequest
-    {   
+    {
+        public string Context { get; set; }
         public List<ChatMessage> Messages { get; set; } = new();
     }
 

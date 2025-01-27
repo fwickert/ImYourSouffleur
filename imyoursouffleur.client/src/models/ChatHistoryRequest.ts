@@ -8,10 +8,11 @@ export enum AuthorRole {
 
 export class ChatHistoryRequest {
     messages: ChatMessage[];
-    
+    context: string;
 
-    constructor(messages: ChatMessage[]) {       
+    constructor(context:string, messages: ChatMessage[]) {       
         this.messages = messages;
+        this.context = context;
     }
 }
 

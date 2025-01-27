@@ -19,7 +19,7 @@ namespace ImYourSouffleur.Server.Controllers
 
         [HttpPost("message", Name = "message")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Post([FromBody] ChatHistoryRequest chatHistory, string endpoint , string connectionId)
+        public IActionResult Post([FromBody] ChatHistoryRequest chatHistory, string endpoint,string connectionId)
         {
             _ = Task.Run(() => _agentService.ChatResponse(chatHistory, endpoint, connectionId));
 

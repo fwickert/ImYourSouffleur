@@ -4,14 +4,16 @@ import { MicRegular } from "@fluentui/react-icons";
 import { getMicroRecognitionAsync } from '../services/SpeechService';
 import { HubConnection } from '@microsoft/signalr';
 import './speechRecognizer.css';
+import { Customer } from '../models/Customer';
 
 interface SpeechRecognizerProps {
     onNewMessage: (message: string) => void;
-    onEndedSpeechMessage: (message: string) => void;
+    onEndedSpeechMessage: (message: string, selectedCustomer: Customer | null) => void;
     connection: HubConnection | null;
+    selectedCustomer: Customer | null;
 }
 
-const SpeechRecognizer: React.FC<SpeechRecognizerProps> = ({ onNewMessage, onEndedSpeechMessage, connection }) => {
+const SpeechRecognizer: React.FC<SpeechRecognizerProps> = ({ onNewMessage, onEndedSpeechMessage, connection, selectedCustomer }) => {
     const [isMicOn, setIsMicOn] = useState(false);
 
     useEffect(() => {
@@ -20,21 +22,20 @@ const SpeechRecognizer: React.FC<SpeechRecognizerProps> = ({ onNewMessage, onEnd
                 onNewMessage(message);
             });
             connection.on('ReceiveMessageEnd', (message: string) => {
-                //onNewMessage(message);
-                onEndedSpeechMessage(message); // Call onEndedSpeechMessage when speech ends
+                if (message) {
+                    onEndedSpeechMessage(message, selectedCustomer);
+                }
                 setIsMicOn(false);
             });
         }
-    }, [connection]);
+    }, [connection, selectedCustomer]);
 
     const startRecognition = async () => {
         try {
             setIsMicOn(true);
-            // Create an empty user message
-            //onNewMessage('');
             await getMicroRecognitionAsync("fr-FR");
         } catch (error) {
-            //console.error('Error starting speech recognition:', error);
+            // Handle error
         }
     };
 

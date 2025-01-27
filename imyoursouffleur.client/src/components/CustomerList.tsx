@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCustomers } from '../models/CustomerContext';
 import { makeStyles, shorthands } from '@fluentui/react-components';
 
@@ -13,7 +13,16 @@ const useStyles = makeStyles({
         padding: '10px',
         cursor: 'pointer',
         '&:hover': {
-            backgroundColor: '#f0f0f0',
+            backgroundColor: '#fff',
+            color: '#000',
+        },
+    },
+    selectedCustomerItem: {
+        backgroundColor: '#fff',
+        color: '#000',
+        '&:hover': {
+            backgroundColor: '#fff',
+            color: '#000',
         },
     },
 });
@@ -25,14 +34,20 @@ interface CustomerListProps {
 const CustomerList: React.FC<CustomerListProps> = ({ onSelectCustomer }) => {
     const styles = useStyles();
     const { customers } = useCustomers();
+    const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+
+    const handleCustomerClick = (customerId: string) => {
+        setSelectedCustomerId(customerId);
+        onSelectCustomer(customerId);
+    };
 
     return (
         <div className={styles.customerListContainer}>
             {customers.map(customer => (
                 <div
                     key={customer.customerId}
-                    className={styles.customerItem}
-                    onClick={() => onSelectCustomer(customer.customerId)}
+                    className={`${styles.customerItem} ${selectedCustomerId === customer.customerId ? styles.selectedCustomerItem : ''}`}
+                    onClick={() => handleCustomerClick(customer.customerId)}
                 >
                     {customer.lastName}
                 </div>
