@@ -15,7 +15,6 @@ import { sendMessage } from '../services/ChatService';
 import { ChatHistoryRequest, ChatMessage, AuthorRole } from '../models/ChatHistoryRequest';
 import { TypingIndicator } from './TypingIndicator';
 
-
 const useStyles = makeStyles({
     chatContainer: {
         display: 'flex',
@@ -102,15 +101,16 @@ const useStyles = makeStyles({
 
 interface Message {
     content: string;
-    authorRole: AuthorRole;    
+    authorRole: AuthorRole;
 }
 
 interface ChatProps {
     onBack: () => void;
     connection: HubConnection | null;
+    isOnline: boolean;
 }
 
-const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
+const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
     const styles = useStyles();
     const [inputText, setInputText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -152,7 +152,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
                     updatedMessages.push({
                         content: message,
                         authorRole: AuthorRole.Assistant
-                        
+
                     });
                 }
 
@@ -167,10 +167,10 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
 
     const handleNewMessage = (message: string) => {
         setMessages(prevMessages => {
-            const updatedMessages = [...prevMessages];            
-                // Add a new non-mic user message
-                updatedMessages.push({ content: message, authorRole: AuthorRole.User});           
-            
+            const updatedMessages = [...prevMessages];
+            // Add a new non-mic user message
+            updatedMessages.push({ content: message, authorRole: AuthorRole.User });
+
             return updatedMessages;
         });
     };
@@ -183,7 +183,8 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
 
         console.log('Sending history to server:', chatHistory);
 
-        await sendMessage(chatHistory, connection?.connectionId);
+        const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
+        await sendMessage(chatHistory, endpoint, connection?.connectionId);
     }
 
     const handleSendClick = () => {
@@ -237,7 +238,8 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
             const chatHistory = new ChatHistoryRequest(
                 updatedMessages.map(msg => new ChatMessage(msg.content, msg.authorRole))
             );
-            sendMessage(chatHistory, connection?.connectionId);
+            const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
+            sendMessage(chatHistory, endpoint, connection?.connectionId);
 
             return updatedMessages;
         });
@@ -256,7 +258,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection }) => {
                 icon={<ArrowLeft24Regular />}
                 onClick={onBack}
                 className={styles.backButton}
-            />
+            />            
             <div className={styles.messagesContainer}>
                 {messages.map((msg, index) => (
                     <div key={index} className={styles.messageContainer}>

@@ -8,9 +8,9 @@ export const getMessages = async (sessionId: string) => {
     return response.data;
 };
 
-export const sendMessage = async (chatHistory: ChatHistoryRequest, connectionId: string | null | undefined) => {
+export const sendMessage = async (chatHistory: ChatHistoryRequest, model:string,  connectionId: string | null | undefined) => {
     const response = await axios.post(`${API_BASE_URL}/chat/message`, chatHistory, {
-        params: { connectionId}
+        params: { connectionId, model}
     });
     return response.data;
     

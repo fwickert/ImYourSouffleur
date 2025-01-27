@@ -39,7 +39,7 @@ namespace ImYourSouffleur.Server.Services
                 Kernel = _kernel,
                 Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
                 {
-                    ServiceId = "Cloud4omini",
+                    ServiceId = "phi-3.5-mini-instruct",
                 })
             };
 
@@ -91,7 +91,7 @@ namespace ImYourSouffleur.Server.Services
         }
 
 
-        public async Task ChatResponse(ChatHistoryRequest chats, string connectionId)
+        public async Task ChatResponse(ChatHistoryRequest chats, string model, string connectionId)
         {
             await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
 
@@ -102,7 +102,7 @@ namespace ImYourSouffleur.Server.Services
                 Kernel = _kernel,
                 Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
                 {
-                    ServiceId = "Cloud4omini",
+                    ServiceId = model,
                 })
             };
 
@@ -124,7 +124,7 @@ namespace ImYourSouffleur.Server.Services
             }
 
             string responseContent = string.Empty;
-            await foreach (StreamingChatMessageContent response in agent.InvokeStreamingAsync(SKHistory))//, new(new OpenAIPromptExecutionSettings() { ServiceId = "phi-3.5-mini-instruct" })))
+            await foreach (StreamingChatMessageContent response in agent.InvokeStreamingAsync(SKHistory))
             {
                 responseContent += response.Content;
                 if (!string.IsNullOrEmpty(responseContent))

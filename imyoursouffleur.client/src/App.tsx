@@ -14,6 +14,7 @@ const App: React.FC = () => {
     const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
     const [showChat, setShowChat] = useState<boolean>(false);
     const [connection, setConnection] = useState<HubConnection | null>(null);
+    const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
     const personas: Persona[] = [
         { name: 'Vendeurs', type: "Sales", prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
@@ -33,6 +34,18 @@ const App: React.FC = () => {
         };
 
         setupConnection();
+
+        const updateOnlineStatus = () => {
+            setIsOnline(navigator.onLine);
+        };
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        return () => {
+            window.removeEventListener('online', updateOnlineStatus);
+            window.removeEventListener('offline', updateOnlineStatus);
+        };
     }, []);
 
     const handlePersonaSelect = (index: number) => {
@@ -79,10 +92,13 @@ const App: React.FC = () => {
                 <Sidebar />
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', zIndex: 2 }}>
                     <main style={{ padding: '20px', overflowY: 'auto' }}>
+                        <div style={{ color: isOnline ? 'green' : 'red' }}>
+                            {isOnline ? 'Online' : 'Offline'}
+                        </div>
                         {showSynchronisationScreen && selectedPersona !== null ? (
                             <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} />
                         ) : showChat ? (
-                            <Chat onBack={handleBackClick} connection={connection} />
+                            <Chat onBack={handleBackClick} connection={connection} isOnline={isOnline} />
                         ) : (
                             <>
                                 <HeroSection onPersonaSelect={handlePersonaSelect} />
