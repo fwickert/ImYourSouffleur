@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
-using ImYourSouffleur.Server.Models;
 using ImYourSouffleur.Server.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ImYourSouffleur.Server.Controllers
 {
@@ -16,15 +15,13 @@ namespace ImYourSouffleur.Server.Controllers
         }
 
         [HttpGet("{customerId}")]
-        public IActionResult GetCustomerById(string customerId)
+        public async Task<IActionResult> GetCustomerById(string customerId, [FromQuery] string endpoint)
         {
-            var customer = _customerService.GetCustomerById(customerId);
+            var customer = await _customerService.GetCustomerById(customerId, endpoint);
             if (customer == null)
             {
                 return NotFound();
             }
-            //sleep
-            //System.Threading.Thread.Sleep(1000);
             return Ok(customer);
         }
     }

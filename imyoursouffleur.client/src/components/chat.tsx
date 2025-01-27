@@ -15,15 +15,17 @@ import { sendMessage } from '../services/ChatService';
 import { ChatHistoryRequest, ChatMessage, AuthorRole } from '../models/ChatHistoryRequest';
 import { TypingIndicator } from './TypingIndicator';
 import { renderMarkdown } from '../utilities/MarkdownRenderer';
+import { useCustomers } from '../models/CustomerContext';
+import CustomerList from './CustomerList';
 
 const useStyles = makeStyles({
     chatContainer: {
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'grid',
+        gridTemplateColumns: '1fr 3fr', // Two columns: 1 part for customer list, 3 parts for chat
         height: '800px',
         ...shorthands.padding('5px'),
         '@media (min-width: 768px)': {
-            width: '60%',
+            //width: '60%',
             margin: '0 auto',
         },
     },
@@ -31,7 +33,7 @@ const useStyles = makeStyles({
         flexGrow: 1,
         overflowY: 'auto',
         ...shorthands.margin('10px', '10px', '0px', '10px'), // Adjusted bottom margin
-        height: '500px', // Fixed height
+        height: '700px', // Fixed height
         border: '1px solid #ccc', // Border
         borderRadius: '5px',
         ...shorthands.padding('10px'),
@@ -97,6 +99,10 @@ const useStyles = makeStyles({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    customerListContainer: {
+        flex: '0 0 10%', // Adjust the width as needed
+        marginRight: '10px',
     },
 });
 
@@ -254,43 +260,52 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
         });
     };
 
-
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             handleSendClick();
         }
     };
 
+    const handleSelectCustomer = (customerId: string) => {
+        console.log('Selected customer ID:', customerId);
+        // Handle customer selection logic here
+    };
+
     return (
         <div className={styles.chatContainer}>
-            <Button
-                icon={<ArrowLeft24Regular />}
-                onClick={onBack}
-                className={styles.backButton}
-            />
-            <div className={styles.messagesContainer}>
-                {messages.map((msg, index) => (
-                    <div key={index} className={styles.messageContainer}>
-                        <div
-                            className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}
-                            dangerouslySetInnerHTML={{ __html: msg.renderedContent || msg.content }}
-                        />
-                    </div>
-                ))}
-                {isTyping && <TypingIndicator />}
+            <div className={styles.customerListContainer}>
+                <CustomerList onSelectCustomer={handleSelectCustomer} />
             </div>
-            <div className={styles.inputContainer}>
-                <Input
-                    placeholder="Type your message"
-                    value={inputText}
-                    onChange={(_e, data) => setInputText(data.value)}
-                    onKeyDown={handleKeyDown}
-                    className={`${styles.inputField}`}
-                    disabled={false}
+            <div>
+                <Button
+                    icon={<ArrowLeft24Regular />}
+                    onClick={onBack}
+                    className={styles.backButton}
                 />
-                <Button icon={<SendFilled />} onClick={handleSendClick} disabled={false} />
-                <div className="micButtonContainer">
-                    <SpeechRecognizer onNewMessage={handleNewMessageFromSpeech} onEndedSpeechMessage={onEndedSpeechMessage} connection={connection} />
+                <div className={styles.messagesContainer}>
+                    {messages.map((msg, index) => (
+                        <div key={index} className={styles.messageContainer}>
+                            <div
+                                className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}
+                                dangerouslySetInnerHTML={{ __html: msg.renderedContent || msg.content }}
+                            />
+                        </div>
+                    ))}
+                    {isTyping && <TypingIndicator />}
+                </div>
+                <div className={styles.inputContainer}>
+                    <Input
+                        placeholder="Type your message"
+                        value={inputText}
+                        onChange={(_e, data) => setInputText(data.value)}
+                        onKeyDown={handleKeyDown}
+                        className={`${styles.inputField}`}
+                        disabled={false}
+                    />
+                    <Button icon={<SendFilled />} onClick={handleSendClick} disabled={false} />
+                    <div className="micButtonContainer">
+                        <SpeechRecognizer onNewMessage={handleNewMessageFromSpeech} onEndedSpeechMessage={onEndedSpeechMessage} connection={connection} />
+                    </div>
                 </div>
             </div>
         </div>

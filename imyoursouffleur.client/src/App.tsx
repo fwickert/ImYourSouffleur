@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useState, useEffect } from 'react';
 import { FluentProvider, webDarkTheme } from '@fluentui/react-components';
 import Sidebar from './components/Sidebar';
@@ -8,6 +9,7 @@ import Chat from './components/chat';
 import { Persona } from './models/Persona';
 import { HubConnection } from '@microsoft/signalr';
 import { getHubConnection } from './services/SignalR';
+import { CustomerProvider } from './models/CustomerContext'; // Import CustomerProvider
 
 const App: React.FC = () => {
     const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
@@ -66,49 +68,51 @@ const App: React.FC = () => {
     };
 
     return (
-        <FluentProvider theme={webDarkTheme}>
-            <div
-                style={{
-                    display: 'flex',
-                    height: '100vh',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    backgroundImage: 'url(/bg.jpg)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                }}
-            >
+        <CustomerProvider>
+            <FluentProvider theme={webDarkTheme}>
                 <div
                     style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: '100px',
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        zIndex: 1,
+                        display: 'flex',
+                        height: '100vh',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        backgroundImage: 'url(/bg.jpg)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                     }}
-                ></div>
-                <Sidebar />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', zIndex: 2 }}>
-                    <main style={{ padding: '20px', overflowY: 'auto' }}>
-                        <div style={{ color: isOnline ? 'green' : 'red' }}>
-                            {isOnline ? 'Online' : 'Offline'}
-                        </div>
-                        {showSynchronisationScreen && selectedPersona !== null ? (
-                            <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} />
-                        ) : showChat ? (
-                            <Chat onBack={handleBackClick} connection={connection} isOnline={isOnline} />
-                        ) : (
-                            <>
-                                <HeroSection onPersonaSelect={handlePersonaSelect} />
-                                <SamplesGrid onSynchronisationClick={handleSynchronisationClick} onCoachClick={handleCoachClick} />
-                            </>
-                        )}
-                    </main>
+                >
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '100px',
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            zIndex: 1,
+                        }}
+                    ></div>
+                    <Sidebar />
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', zIndex: 2 }}>
+                        <main style={{ padding: '20px', overflowY: 'auto' }}>
+                            <div style={{ color: isOnline ? 'green' : 'red' }}>
+                                {isOnline ? 'Online' : 'Offline'}
+                            </div>
+                            {showSynchronisationScreen && selectedPersona !== null ? (
+                                <Synchronisation persona={personas[selectedPersona]} onBack={handleBackClick} isOnline={isOnline} />
+                            ) : showChat ? (
+                                <Chat onBack={handleBackClick} connection={connection} isOnline={isOnline} />
+                            ) : (
+                                <>
+                                    <HeroSection onPersonaSelect={handlePersonaSelect} />
+                                    <SamplesGrid onSynchronisationClick={handleSynchronisationClick} onCoachClick={handleCoachClick} />
+                                </>
+                            )}
+                        </main>
+                    </div>
                 </div>
-            </div>
-        </FluentProvider>
+            </FluentProvider>
+        </CustomerProvider>
     );
 };
 

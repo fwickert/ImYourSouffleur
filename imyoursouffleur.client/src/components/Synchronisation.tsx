@@ -6,10 +6,12 @@ import Appointments from './Appointments';
 import CustomerService from '../services/CustomerService';
 import { Customer } from '../models/Customer';
 import { Appointment } from '../models/Appointment';
+import { useCustomers } from '../models/CustomerContext';
 
 interface SynchronisationProps {
     persona: Persona;
     onBack: () => void;
+    isOnline: boolean;
 }
 
 const useStyles = makeStyles({
@@ -81,9 +83,9 @@ const useStyles = makeStyles({
     },
 });
 
-const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) => {
+const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack, isOnline }) => {
     const classes = useStyles();
-    const [customers, setCustomers] = useState<Customer[]>([]);
+    const { customers, setCustomers } = useCustomers(); // Use the customer context
     const [loading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loadingCustomers, setLoadingCustomers] = useState<boolean[]>([]);
@@ -104,7 +106,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
         for (let i = 0; i < appointments.length; i++) {
             const appointment = appointments[i];
             if (!appointment.personal) {
-                const loadedCustomer: Customer | null = await customerService.getCustomerById(appointment.customerId);
+                const loadedCustomer: Customer | null = await customerService.getCustomerById(appointment.customerId, isOnline);
                 if (loadedCustomer !== null) {
                     loadedCustomers.push(loadedCustomer);
                 }
@@ -113,7 +115,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
             }
         }
 
-        setCustomers(loadedCustomers);
+        setCustomers(loadedCustomers); // Set the customers in context
         setLoading(false);
     };
 
@@ -130,6 +132,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
             <h1>Synchronisation</h1>
             <p>Récupère les informations pour ta journée</p>
             <p>Prompt: {persona.prompt}</p>
+            <p>Status: {isOnline ? 'Online' : 'Offline'}</p> {/* Display online status */}
             <div className={classes.appointmentsContainer}>
                 <div className={classes.appointments}>
                     <Appointments persona={persona.type} onAppointmentsLoaded={handleAppointmentsLoaded} />
@@ -153,7 +156,6 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack }) =>
                         </div>
                     ))}
                 </div>
-
             </div>
         </div>
     );

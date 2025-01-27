@@ -10,9 +10,14 @@ namespace ImYourSouffleur.Server.Services
     public class CustomerService
     {
         private readonly string _dataDirectory = "Data";
-        
-        
-        public Customer? GetCustomerById(string customerId)
+        private readonly AgentService _agentService;
+
+        public CustomerService(AgentService agentService)
+        {
+            _agentService = agentService;
+        }
+
+        public async Task<Customer?> GetCustomerById(string customerId, string endpoint)
         {
             var filePath = Path.Combine(_dataDirectory, $"Customer{customerId}.json");
 
@@ -24,11 +29,15 @@ namespace ImYourSouffleur.Server.Services
             var json = File.ReadAllText(filePath);
             var customer = JsonSerializer.Deserialize<Customer>(json);
 
-            //if (customer != null)
-            //{
-            //    string summary = await _agentService.GetCustomerSummary(customer);
-            //    Console.WriteLine(summary);
-            //}
+
+            // For each customer return the information for the system prompt of the agent
+            // Resume the surface doc et the customer information to have a little context for the local
+
+            if (customer != null)
+            {
+                string summary = await _agentService.GetCustomerSummary(customer, endpoint);
+                Console.WriteLine(summary);
+            }
 
             return customer;
         }

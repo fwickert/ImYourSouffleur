@@ -30,7 +30,7 @@ namespace ImYourSouffleur.Server.Services
             _messageRelayHubContext = messageRelayHubContext;
         }
 
-        public async Task<string> GetCustomerSummary(Customer customer)
+        public async Task<string> GetCustomerSummary(Customer customer, string endpoint)
         {
             ChatCompletionAgent agent = new()
             {
@@ -39,7 +39,7 @@ namespace ImYourSouffleur.Server.Services
                 Kernel = _kernel,
                 Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
                 {
-                    ServiceId = "phi-3.5-mini-instruct",
+                    ServiceId = endpoint,
                 })
             };
 
@@ -50,7 +50,7 @@ namespace ImYourSouffleur.Server.Services
             ChatHistory chats = [new(Microsoft.SemanticKernel.ChatCompletion.AuthorRole.User, systemprompt)];
 
             string summary = string.Empty;
-            await foreach (ChatMessageContent response in agent.InvokeAsync(chats, new(new OpenAIPromptExecutionSettings() { ServiceId = "Cloud4omini" })))
+            await foreach (ChatMessageContent response in agent.InvokeAsync(chats))
             {
                 summary += response.Content;
             }
