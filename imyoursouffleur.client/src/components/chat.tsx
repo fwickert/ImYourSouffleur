@@ -4,6 +4,7 @@ import {
     Input,
     makeStyles,
     shorthands,
+    Switch,
 } from '@fluentui/react-components';
 import {
     SendFilled,
@@ -23,7 +24,7 @@ const useStyles = makeStyles({
     chatContainer: {
         display: 'grid',
         gridTemplateColumns: '1fr 3fr', // Two columns: 1 part for customer list, 3 parts for chat
-        height: '800px',
+        height: '700px',
         ...shorthands.padding('5px'),
         '@media (min-width: 768px)': {
             //width: '60%',
@@ -34,7 +35,7 @@ const useStyles = makeStyles({
         flexGrow: 1,
         overflowY: 'auto',
         ...shorthands.margin('10px', '10px', '0px', '10px'), // Adjusted bottom margin
-        height: '700px', // Fixed height
+        height: '600px', // Fixed height
         border: '1px solid #ccc', // Border
         borderRadius: '5px',
         ...shorthands.padding('10px'),
@@ -65,7 +66,7 @@ const useStyles = makeStyles({
         //marginBottom: '10px',
         alignSelf: 'flex-end',
         maxWidth: '50%',
-        color:'#ff69b4',
+        color: '#ff69b4',
     },
     assistantMessage: {
         //backgroundColor: '#e0e0e0',
@@ -136,6 +137,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
     const [messages, setMessages] = useState<Message[]>([]);
     const currentMessageRef = useRef<string | null>(null);
     const [isTyping, setIsTyping] = useState<boolean>(false);
+    const [showCustomerSummary, setShowCustomerSummary] = useState<boolean>(true); // Add showCustomerSummary state
 
     const customers = useCustomers().customers;
 
@@ -272,7 +274,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
                 updatedMessages.map(msg => new ChatMessage(msg.content, msg.authorRole))
             );
 
-            
+
 
             sendMessage(chatHistory, isOnline, connection?.connectionId);
 
@@ -301,7 +303,12 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
         <div className={styles.chatContainer}>
             <div className={styles.customerListContainer}>
                 <CustomerList onSelectCustomer={handleSelectCustomer} />
-                {selectedCustomer && (
+                <Switch
+                    checked={showCustomerSummary}
+                    onChange={() => setShowCustomerSummary(!showCustomerSummary)}
+                    label="Informations du client"
+                />
+                {showCustomerSummary && selectedCustomer && (
                     <div className={styles.customerSummary}>
                         <h3>Customer Summary</h3>
                         <p>{selectedCustomer.summary + selectedCustomer.documentation}</p>
