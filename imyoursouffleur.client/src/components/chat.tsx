@@ -14,6 +14,7 @@ import { HubConnection } from '@microsoft/signalr';
 import { sendMessage } from '../services/ChatService';
 import { ChatHistoryRequest, ChatMessage, AuthorRole } from '../models/ChatHistoryRequest';
 import { TypingIndicator } from './TypingIndicator';
+import { renderMarkdown } from '../utilities/MarkdownRenderer';
 
 const useStyles = makeStyles({
     chatContainer: {
@@ -58,7 +59,7 @@ const useStyles = makeStyles({
         //backgroundColor: '#f0f0f0',
         padding: '10px',
         borderRadius: '5px',
-        marginBottom: '10px',
+        //marginBottom: '10px',
         alignSelf: 'flex-end',
         maxWidth: '50%',
     },
@@ -66,7 +67,7 @@ const useStyles = makeStyles({
         //backgroundColor: '#e0e0e0',
         padding: '10px',
         borderRadius: '5px',
-        marginBottom: '10px',
+        //marginBottom: '10px',
         alignSelf: 'flex-start',
         maxWidth: '50%',
         color: 'pink',
@@ -102,6 +103,7 @@ const useStyles = makeStyles({
 interface Message {
     content: string;
     authorRole: AuthorRole;
+    renderedContent?: string;
 }
 
 interface ChatProps {
@@ -136,23 +138,25 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
             setIsTyping(true);
         });
 
-        connection.on('InProgressMessageUpdate', (message: string) => {
+        connection.on('InProgressMessageUpdate', async (message: string) => {
             setIsTyping(false);
 
             currentMessageRef.current = message;
+
+            const renderedContent = await renderMarkdown(message);
 
             setMessages(prevMessages => {
                 const updatedMessages = [...prevMessages];
                 const lastMessage = updatedMessages[updatedMessages.length - 1];
                 if (lastMessage && lastMessage.authorRole === AuthorRole.Assistant) {
                     // Update the last assistant message
-                    updatedMessages[updatedMessages.length - 1] = { ...lastMessage, content: message };
+                    updatedMessages[updatedMessages.length - 1] = { ...lastMessage, content: message, renderedContent };
                 } else {
                     // Add a new assistant message if the last message is not from the assistant
                     updatedMessages.push({
                         content: message,
-                        authorRole: AuthorRole.Assistant
-
+                        authorRole: AuthorRole.Assistant,
+                        renderedContent
                     });
                 }
 
@@ -165,11 +169,12 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
         });
     };
 
-    const handleNewMessage = (message: string) => {
+    const handleNewMessage = async (message: string) => {
+        const renderedContent = await renderMarkdown(message);
         setMessages(prevMessages => {
             const updatedMessages = [...prevMessages];
             // Add a new non-mic user message
-            updatedMessages.push({ content: message, authorRole: AuthorRole.User });
+            updatedMessages.push({ content: message, authorRole: AuthorRole.User, renderedContent });
 
             return updatedMessages;
         });
@@ -183,8 +188,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
 
         console.log('Sending history to server:', chatHistory);
 
-        const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
-        await sendMessage(chatHistory, endpoint, connection?.connectionId);
+        await sendMessage(chatHistory, isOnline, connection?.connectionId);
     }
 
     const handleSendClick = () => {
@@ -193,7 +197,8 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
         setInputText('');
     };
 
-    const handleNewMessageFromSpeech = (message: string) => {
+    const handleNewMessageFromSpeech = async (message: string) => {
+        const renderedContent = await renderMarkdown(message);
         setMessages(prevMessages => {
             const updatedMessages = [...prevMessages];
             const lastMessageIndex = updatedMessages.length - 1;
@@ -201,13 +206,15 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
                 // Update the last user message
                 updatedMessages[lastMessageIndex] = {
                     ...updatedMessages[lastMessageIndex],
-                    content: message
+                    content: message,
+                    renderedContent
                 };
             } else {
                 // Add a new user message if the last message is not from the user
                 updatedMessages.push({
                     content: message,
-                    authorRole: AuthorRole.User
+                    authorRole: AuthorRole.User,
+                    renderedContent
                 });
             }
             return updatedMessages;
@@ -216,6 +223,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
 
     const onEndedSpeechMessage = async (finalMessage: string) => {
         // Update the messages state with the final speech message
+        const renderedContent = await renderMarkdown(finalMessage);
         setMessages(prevMessages => {
             const updatedMessages = [...prevMessages];
             const lastMessageIndex = updatedMessages.length - 1;
@@ -224,13 +232,15 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
                 // Update the last user message with the final speech input
                 updatedMessages[lastMessageIndex] = {
                     ...updatedMessages[lastMessageIndex],
-                    content: finalMessage
+                    content: finalMessage,
+                    renderedContent
                 };
             } else {
                 // Add a new user message if the last message is not from the user
                 updatedMessages.push({
                     content: finalMessage,
-                    authorRole: AuthorRole.User
+                    authorRole: AuthorRole.User,
+                    renderedContent
                 });
             }
 
@@ -238,8 +248,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
             const chatHistory = new ChatHistoryRequest(
                 updatedMessages.map(msg => new ChatMessage(msg.content, msg.authorRole))
             );
-            const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
-            sendMessage(chatHistory, endpoint, connection?.connectionId);
+            sendMessage(chatHistory, isOnline, connection?.connectionId);
 
             return updatedMessages;
         });
@@ -258,13 +267,14 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline }) => {
                 icon={<ArrowLeft24Regular />}
                 onClick={onBack}
                 className={styles.backButton}
-            />            
+            />
             <div className={styles.messagesContainer}>
                 {messages.map((msg, index) => (
                     <div key={index} className={styles.messageContainer}>
-                        <div className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}>
-                            {msg.content}
-                        </div>
+                        <div
+                            className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}
+                            dangerouslySetInnerHTML={{ __html: msg.renderedContent || msg.content }}
+                        />
                     </div>
                 ))}
                 {isTyping && <TypingIndicator />}

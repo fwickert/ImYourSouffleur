@@ -8,10 +8,10 @@ export const getMessages = async (sessionId: string) => {
     return response.data;
 };
 
-export const sendMessage = async (chatHistory: ChatHistoryRequest, model:string,  connectionId: string | null | undefined) => {
+export const sendMessage = async (chatHistory: ChatHistoryRequest, isOnline: boolean, connectionId: string | null | undefined) => {
+    const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
     const response = await axios.post(`${API_BASE_URL}/chat/message`, chatHistory, {
-        params: { connectionId, model}
+        params: { connectionId, endpoint }
     });
     return response.data;
-    
 };

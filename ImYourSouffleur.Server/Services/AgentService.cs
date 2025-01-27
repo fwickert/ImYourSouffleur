@@ -91,7 +91,7 @@ namespace ImYourSouffleur.Server.Services
         }
 
 
-        public async Task ChatResponse(ChatHistoryRequest chats, string model, string connectionId)
+        public async Task ChatResponse(ChatHistoryRequest chats, string endpoint, string connectionId)
         {
             await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
 
@@ -102,7 +102,7 @@ namespace ImYourSouffleur.Server.Services
                 Kernel = _kernel,
                 Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
                 {
-                    ServiceId = model,
+                    ServiceId = endpoint,
                 })
             };
 
