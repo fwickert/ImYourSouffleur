@@ -15,7 +15,12 @@ using Microsoft.Extensions.Logging;
 using ImYourSouffleur.Server.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver.Core.Connections;
 
+using Microsoft.Windows.AI.Generative;
+using Microsoft.Identity.Client;
+using System.Text;
+using Microsoft.Windows.AI.ContentModeration;
 
 namespace ImYourSouffleur.Server.Services
 {
@@ -138,13 +143,13 @@ namespace ImYourSouffleur.Server.Services
 
             string instruction = "[KNOWLEDGE]\n\n" 
                 + chats.Context + "\n\n" +
-                "You are an assistant to help the salesperson to find the best information to argument and sales product to a customer.\n\n" +
-                "Be short in your answers";
+                "You are a personal assistant dedicated to helping the salesperson find the best information to argue and sell a product to customers..\n\n" +
+                "Be very short in your answers";
 
             //add special info if localSLM
             if (endpoint == "Localphi3")
             {
-                instruction += "\n\nAnswer in same language that the User";
+                instruction += "\n\nAnswer only in same language that the User (like Fr)\n\n";
             }
 
             ChatCompletionAgent agent = new()
@@ -189,6 +194,82 @@ namespace ImYourSouffleur.Server.Services
             await this.UpdateMessageOnClient("EndMessageUpdate", responseContent, connectionId);
 
         }
+
+        public async Task ChatPhiSilica(ChatHistoryRequest chats, string connectionId)
+        {
+            await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
+
+            //string instruction = "[KNOWLEDGE]\n\n"
+            //    + chats.Context + "\n\n" +
+            //"You are a personal assistant dedicated to helping the salesperson find the best information to argue and sell a product to customers..\n\n" +
+            //"Be very short in your answers";
+
+            //Recomposer le prompt system + assistant + User et le donner en format markdown à silica par exemple.
+
+            StringBuilder systemPrompt = new();
+
+            //systemPrompt.Append("<|system|>\n\nTu es un assistant et tu chats avec l'utilisateur pour lui apporter des informations.\n\n" +
+            //    "\n\n" +
+            //    "Réponds de manière courte et succinte\n\n" +
+            //    "[KNOWLEDGE]\n\n" + chats.Context + "\n\n");
+
+            
+            systemPrompt.Append("<|system|>\n\n." +
+                "You are a personal assistant dedicated to helping the salesperson find the best information to argue and sell a product to customers..\n\n\"\r\nBe very short in your answers\"\n\n" +
+               "Réponds de manière courte et succinte\n\n" +
+               "[KNOWLEDGE]\n\n" + chats.Context + "\n\n");
+            StringBuilder assistant = new();
+            StringBuilder user = new();
+
+            foreach (var message in chats.Messages)
+            {
+                switch (message.Role)
+                {
+                    case Models.Request.AuthorRole.System:
+                        systemPrompt.Append(message.Content);
+                        break;
+                    case Models.Request.AuthorRole.Assistant:
+                        assistant.Append("<|assistant|>\n\n" + message.Content);
+                        break;
+                    case Models.Request.AuthorRole.User:
+                        user.Append("<|user|>\n\n" + message.Content);
+                        break;
+                }
+            }
+
+
+            string instruction = systemPrompt + "\n\n" + assistant.ToString() + "\n\n" + user.ToString();
+
+            //take the last message for user from the chats
+            string lastmsg = chats.Messages.Last(q=>q.Role == Models.Request.AuthorRole.User).Content;
+
+
+
+
+            if (!LanguageModel.IsAvailable())
+            {
+                var op = LanguageModel.MakeAvailableAsync().GetAwaiter().GetResult();
+            }
+
+
+            using LanguageModel languageModel = LanguageModel.CreateAsync().GetAwaiter().GetResult();
+
+            
+            var languageModelOptions = new LanguageModelOptions();
+            var contentFilterOptions = new ContentFilterOptions();
+            languageModelOptions.Temp = 0;
+            var languageModelContext = languageModel.CreateContext(instruction, contentFilterOptions);
+
+
+            var l = languageModel.GenerateResponseWithProgressAsync(languageModelOptions, lastmsg, contentFilterOptions, languageModelContext);
+            StringBuilder stringBuilder = new();
+            l.Progress = (_, generetionProgress) =>
+            {
+                stringBuilder.Append(generetionProgress);
+                this.UpdateMessageOnClient("InProgressMessageUpdate", stringBuilder.ToString().Replace("<|system|>", "").Replace("<|assistant|>", ""), connectionId).GetAwaiter().GetResult();
+            };
+        }
+
 
         private async Task UpdateMessageOnClient(string hubconnection, string message, string connectionId)
         {
