@@ -12,12 +12,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\DistributeurContoso.md" />
+    <None Remove="Data\DistributeurReparation.md" />
+    <None Remove="Data\MachineACafeContoso.md" />
     <None Remove="Data\MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md" />
     <None Remove="Data\MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md" />
     <None Remove="Data\surfacehub.md" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Data\MachineACafeReparation.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\DistributeurContoso.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\DistributeurReparation.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\MachineACafeContoso.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -49,6 +67,12 @@
     <ProjectReference Include="..\imyoursouffleur.client\imyoursouffleur.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Data\customer13579.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

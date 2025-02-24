@@ -1,0 +1,39 @@
+{
+  "customerId": "24680",
+  "firstName": "Jean",
+  "lastName": "Martin",
+  "email": "jean.martin@microsoft.com",
+  "phone": "+33-1-23-45-67-90",
+  "address": {
+    "street": "1 Microsoft Way",
+    "city": "Issy-les-Moulineaux",
+    "state": "Île-de-France",
+    "zipCode": "92130",
+    "country": "France"
+  },
+  "purchaseHistory": [
+    {
+      "purchaseId": "4001",
+      "date": "2024-06-20",
+      "items": [
+        {
+          "productId": "DRINK500",
+          "productName": "Contoso DrinkMaster 500",
+          "quantity": 3,
+          "price": 1199.99
+        }
+      ],
+      "totalAmount": 3599.97
+    }
+  ],
+  "customerServiceHistory": [
+    {
+      "serviceId": "5001",
+      "date": "2025-03-05",
+      "issue": "DrinkMaster 500 not dispensing drinks",
+      "resolution": "Pending repair",
+      "status": "Pending"
+    }
+  ]
+}
+

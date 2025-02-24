@@ -1,0 +1,38 @@
+{
+  "customerId": "13579",
+  "firstName": "Michel",
+  "lastName": "Durant",
+  "email": "michel.durant@microsoft.com",
+  "phone": "+33-1-23-45-67-89",
+  "address": {
+    "street": "1 Microsoft Way",
+    "city": "Issy-les-Moulineaux",
+    "state": "Île-de-France",
+    "zipCode": "92130",
+    "country": "France"
+  },
+  "purchaseHistory": [
+    {
+      "purchaseId": "3001",
+      "date": "2024-05-10",
+      "items": [
+        {
+          "productId": "COFFEE001",
+          "productName": "Contoso BrewMaster 3000",
+          "quantity": 5,
+          "price": 499.99
+        }
+      ],
+      "totalAmount": 2499.95
+    }
+  ],
+  "customerServiceHistory": [
+    {
+      "serviceId": "4001",
+      "date": "2025-03-05",
+      "issue": "Coffee machine not working",
+      "resolution": "Pending repair",
+      "status": "Pending"
+    }
+  ]
+}

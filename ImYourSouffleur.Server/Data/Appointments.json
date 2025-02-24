@@ -28,5 +28,35 @@
     "persona": "Sales",
     "username": "user@example.com",
     "customerId": "2468"
+  },
+  {
+    "id": 4,
+    "title": "Réparation Machine à café",
+    "description": "Réparation de la machine à café chez Contoso",
+    "start": "2025-03-05T09:00:00",
+    "end": "2025-03-05T11:30:00",
+    "persona": "FieldService",
+    "username": "fieldservice@example.com",
+    "customerId": "13579"
+  },
+  {
+    "id": 5,
+    "title": "Réparation distributeur",
+    "description": "Réparation du distributeur de boisson chez Microsoft France",
+    "start": "2025-03-05T14:00:00",
+    "end": "2025-03-05T16:30:00",
+    "persona": "FieldService",
+    "username": "fieldservice@example.com",
+    "customerId": "24680"
+  },
+  {
+    "id": 6,
+    "title": "Déjeuné avec l'équipe",
+    "description": "Déjeuné avec l'équipe de FieldService",
+    "start": "2023-10-13T12:00:00",
+    "end": "2023-10-13T13:00:00",
+    "persona": "FieldService",
+    "username": "fieldservice@example.com",
+    "customerId": ""
   }
 ]

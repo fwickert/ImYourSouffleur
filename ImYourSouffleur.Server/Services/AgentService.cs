@@ -1,8 +1,7 @@
 #pragma warning disable SKEXP0110 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 #pragma warning disable SKEXP0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
-using System;
-using System.Threading.Tasks;
+
 using System.Text.Json;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
@@ -10,15 +9,13 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using ImYourSouffleur.Server.Models;
 using ImYourSouffleur.Server.Models.Request;
-
-using Microsoft.Extensions.Logging;
 using ImYourSouffleur.Server.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver.Core.Connections;
+
 
 using Microsoft.Windows.AI.Generative;
-using Microsoft.Identity.Client;
+
 using System.Text;
 using Microsoft.Windows.AI.ContentModeration;
 
@@ -69,7 +66,9 @@ namespace ImYourSouffleur.Server.Services
             ChatCompletionAgent agent = new()
             {
                 Name = "AppointmentService",
-                Instructions = "Determine if the appointment is personal or not based on the description and title. Only response True or False. RULES : Salers never lunch with customer (otherwise is personal).",
+                Instructions = "Determine if the appointment is personal or not based on the description and title. Only response True or False.\n\nRULES\n\n" +
+                "Salers never lunch with customer (otherwise is personal).\n\n" +
+                "Field Service only lunch with personal appointement. Teem lunch are personal",
                 Kernel = _kernel,
                 Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
                 {
@@ -99,22 +98,34 @@ namespace ImYourSouffleur.Server.Services
         public async Task<string> GetDocumentation(string customerID)
         {
             // Load file in data folder based on customerID
-            string surfaceDoc="";
-            if (customerID == "12345")
+            string Doc="";
+            switch (customerID)
             {
-                surfaceDoc = File.ReadAllText(Path.Combine(_dataDirectory, "MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md"));
-                surfaceDoc += "\n\n" + File.ReadAllText(Path.Combine(_dataDirectory, "MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md"));
+                case "12345":
+                    Doc = File.ReadAllText(Path.Combine(_dataDirectory, "MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md"));
+                    Doc += "\n\n" + File.ReadAllText(Path.Combine(_dataDirectory, "MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md"));
+                    break;
+                case "6789":
+                    Doc = File.ReadAllText(Path.Combine(_dataDirectory, "surfacehub.md"));
+                    break;
+                case "13579":
+                    Doc = File.ReadAllText(Path.Combine(_dataDirectory, "MachineACafeContoso.md"));
+                    Doc += File.ReadAllText(Path.Combine(_dataDirectory, "MachineACafeReparation.md"));
+                    break;
+                case "24680":
+                    Doc = File.ReadAllText(Path.Combine(_dataDirectory, "DistributeurContoso.md"));
+                    Doc += "\n\n" + File.ReadAllText(Path.Combine(_dataDirectory, "DistributeurReparation.md"));
+                    break;
+
             }
-            else if (customerID == "6789")
-            {
-                surfaceDoc = File.ReadAllText(Path.Combine(_dataDirectory, "surfacehub.md"));
-            }
-           
+
 
             // Create the instruction
-            string instruction = "Get summary of the documentation. This documentation must be useful if a salesperson asks for advice to the AI." +
+            string instruction = "Get summary of the documentation et repear spécification. " +
+                "This documentation must be useful if the employee asks for advice to the AI." +
+                "Keep the product reference number in the summary" +
                 " \n\n[Documentation to summarize]\n\n" +
-                surfaceDoc + "\n\n[END]";
+                Doc + "\n\n[END]";
 
             ChatCompletionAgent agent = new()
             {
@@ -146,6 +157,7 @@ namespace ImYourSouffleur.Server.Services
                 "You are a personal assistant dedicated to helping the salesperson find the best information to argue and sell a product to customers..\n\n" +
                 "Be very short in your answers";
 
+            //endpoint = "Localphi3";
             //add special info if localSLM
             if (endpoint == "Localphi3")
             {
@@ -216,8 +228,8 @@ namespace ImYourSouffleur.Server.Services
             
             systemPrompt.Append("<|system|>\n\n." +
                 "You are a personal assistant dedicated to helping the salesperson find the best information to argue and sell a product to customers..\n\n\"\r\nBe very short in your answers\"\n\n" +
-               "Réponds de manière courte et succinte\n\n" +
-               "[KNOWLEDGE]\n\n" + chats.Context + "\n\n");
+               "Ne parle pas à la place de l'utilisateur" +
+               "[KNOWLEDGE]\n\n" + chats.Context + "\n\n<|end|>");
             StringBuilder assistant = new();
             StringBuilder user = new();
 
@@ -229,10 +241,10 @@ namespace ImYourSouffleur.Server.Services
                         systemPrompt.Append(message.Content);
                         break;
                     case Models.Request.AuthorRole.Assistant:
-                        assistant.Append("<|assistant|>\n\n" + message.Content);
+                        assistant.Append("<|assistant|>\n\n" + message.Content + "<|end|>");
                         break;
                     case Models.Request.AuthorRole.User:
-                        user.Append("<|user|>\n\n" + message.Content);
+                        user.Append("<|user|>\n\n" + message.Content + "<|end|>");
                         break;
                 }
             }
@@ -242,8 +254,6 @@ namespace ImYourSouffleur.Server.Services
 
             //take the last message for user from the chats
             string lastmsg = chats.Messages.Last(q=>q.Role == Models.Request.AuthorRole.User).Content;
-
-
 
 
             if (!LanguageModel.IsAvailable())
