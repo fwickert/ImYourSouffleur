@@ -38,6 +38,8 @@ namespace ImYourSouffleur.Server.Controllers
 
             response = response.Replace("```json", "");
             response = response.Replace("```", "");
+            response = response.Replace("'''json", "");
+            response = response.Replace("'''", "");
             //deserialize the response in reportdata
             var reportData = System.Text.Json.JsonSerializer.Deserialize<ReportData>(response);
 
@@ -50,6 +52,8 @@ namespace ImYourSouffleur.Server.Controllers
             report = report.Replace("[CustomerEmail]", reportData!.CustomerEmail);
             report = report.Replace("[CustomerPhone]", reportData!.CustomerPhone);
             report = report.Replace("[CustomerAddress]", reportData!.CustomerAddress);
+            report = report.Replace("[Issue]", reportData!.Issue);
+            report = report.Replace("[Date]", DateTime.Today.ToString("dd/MM/yyyy"));
 
 
             return Ok(report);

@@ -5,6 +5,8 @@ import {
     makeStyles,
     shorthands,
     Switch,
+    Tab,
+    TabList
 } from '@fluentui/react-components';
 import {
     SendFilled,
@@ -23,7 +25,7 @@ import { Customer } from '../models/Customer';
 const useStyles = makeStyles({
     chatContainer: {
         display: 'grid',
-        gridTemplateColumns: '1fr 3fr', // Two columns: 1 part for customer list, 3 parts for chat
+        gridTemplateColumns: '0.5fr 3.5fr', // Adjusted columns: 0.5 part for customer list, 3.5 parts for chat
         height: '700px',
         ...shorthands.padding('5px'),
         '@media (min-width: 768px)': {
@@ -138,6 +140,8 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
     const currentMessageRef = useRef<string | null>(null);
     const [isTyping, setIsTyping] = useState<boolean>(false);
     const [showCustomerSummary, setShowCustomerSummary] = useState<boolean>(false); // Add showCustomerSummary state
+    const [selectedTab, setSelectedTab] = useState<string>('chat'); // Add selectedTab state
+    const [renderedCustomerSummary, setRenderedCustomerSummary] = useState<string>(''); // Add state for rendered customer summary
 
     const customers = useCustomers().customers;
 
@@ -146,6 +150,17 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
             setupConnectionHandlers(connection);
         }
     }, []);
+
+    useEffect(() => {
+        const renderCustomerSummary = async () => {
+            if (selectedCustomer) {
+                const renderedContent = await renderMarkdown(selectedCustomer.summary + selectedCustomer.documentation);
+                setRenderedCustomerSummary(renderedContent);
+            }
+        };
+
+        renderCustomerSummary();
+    }, [selectedCustomer]);
 
     const removeConnectionHandlers = (connection: HubConnection) => {
         connection.off('StartMessageUpdate');
@@ -299,10 +314,12 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
         }
     };
 
+    const onTabSelect = (_event: any, data: any) => {
+        setSelectedTab(data.value);
+    };
+
     return (
-
         <div className={styles.chatContainer}>
-
             <div className={styles.customerListContainer}>
                 <Button
                     icon={<ArrowLeft24Regular />}
@@ -310,50 +327,62 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
                     className={styles.backButton}
                 />
                 <CustomerList onSelectCustomer={handleSelectCustomer} />
-                <Switch
-                    checked={showCustomerSummary}
-                    onChange={() => setShowCustomerSummary(!showCustomerSummary)}
-                    label="Informations du client"
-                />
-                {showCustomerSummary && selectedCustomer && (
-                    <div className={styles.customerSummary}>
-                        <h3>Customer Summary</h3>
-                        <p>{selectedCustomer.summary + selectedCustomer.documentation}</p>
-                    </div>
-                )}
+                {/*<Switch*/}
+                {/*    checked={showCustomerSummary}*/}
+                {/*    onChange={() => setShowCustomerSummary(!showCustomerSummary)}*/}
+                {/*    label="Informations du client"*/}
+                {/*/>*/}
             </div>
             <div>
-              
-
-                <div className={styles.messagesContainer}>
-                    {messages.map((msg, index) => (
-                        <div key={index} className={styles.messageContainer}>
-                            <div
-                                className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}
-                                dangerouslySetInnerHTML={{ __html: msg.renderedContent || msg.content }}
-                            />
+                <TabList selectedValue={selectedTab} onTabSelect={onTabSelect}>
+                    <Tab value="chat">Chat</Tab>
+                    <Tab value="customerInfo">Contexte</Tab>
+                </TabList>
+                <div>
+                    {selectedTab === "chat" && (
+                        <div role="tabpanel">
+                            <div className={styles.messagesContainer}>
+                                {messages.map((msg, index) => (
+                                    <div key={index} className={styles.messageContainer}>
+                                        <div
+                                            className={msg.authorRole === AuthorRole.User ? styles.userMessage : styles.assistantMessage}
+                                            dangerouslySetInnerHTML={{ __html: msg.renderedContent || msg.content }}
+                                        />
+                                    </div>
+                                ))}
+                                {isTyping && <TypingIndicator />}
+                            </div>
+                            <div className={styles.inputContainer}>
+                                <Input
+                                    placeholder="Type your message"
+                                    value={inputText}
+                                    onChange={(_e, data) => setInputText(data.value)}
+                                    onKeyDown={handleKeyDown}
+                                    className={`${styles.inputField}`}
+                                    disabled={false}
+                                />
+                                <Button icon={<SendFilled />} onClick={handleSendClick} disabled={false} />
+                                <div className="micButtonContainer">
+                                    <SpeechRecognizer
+                                        onNewMessage={handleNewMessageFromSpeech}
+                                        onEndedSpeechMessage={onEndedSpeechMessage}
+                                        connection={connection}
+                                        selectedCustomer={selectedCustomer} // Pass selectedCustomer
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    ))}
-                    {isTyping && <TypingIndicator />}
-                </div>
-                <div className={styles.inputContainer}>
-                    <Input
-                        placeholder="Type your message"
-                        value={inputText}
-                        onChange={(_e, data) => setInputText(data.value)}
-                        onKeyDown={handleKeyDown}
-                        className={`${styles.inputField}`}
-                        disabled={false}
-                    />
-                    <Button icon={<SendFilled />} onClick={handleSendClick} disabled={false} />
-                    <div className="micButtonContainer">
-                        <SpeechRecognizer
-                            onNewMessage={handleNewMessageFromSpeech}
-                            onEndedSpeechMessage={onEndedSpeechMessage}
-                            connection={connection}
-                            selectedCustomer={selectedCustomer} // Pass selectedCustomer
-                        />
-                    </div>
+                    )}
+                    {selectedTab === "customerInfo" && (
+                        <div role="tabpanel">
+                            {selectedCustomer && (
+                                <div className={styles.customerSummary}>
+                                    <h3>Customer Summary</h3>
+                                    <div dangerouslySetInnerHTML={{ __html: renderedCustomerSummary }} />
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

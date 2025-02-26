@@ -108,7 +108,8 @@ namespace ImYourSouffleur.Server.Services
                 "{'CustomerName':'value', " +
                 "'CustomerEmail':'value', " +
                 "'CustomerPhone':'value', " +
-                "'CustomerAddress':'value'}" +
+                "'CustomerAddress':'value'," +
+                "'Issue':'value'}" +
                 "\n\n" +
                 "your entire response/output is going to consist of a single JSON object {}, and you will NOT wrap it within JSON md markers\n\n" +
                 "[TRANSCRIPT]\n\n" + transcript + "\n\n" +

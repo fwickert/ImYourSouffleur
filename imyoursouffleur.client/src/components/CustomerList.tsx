@@ -4,8 +4,8 @@ import { makeStyles, shorthands } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     customerListContainer: {
-        width: '20%',
-        borderRight: '1px solid #ccc',
+        
+        //borderRight: '1px solid #ccc',
         ...shorthands.padding('10px'),
         overflowY: 'auto',
     },

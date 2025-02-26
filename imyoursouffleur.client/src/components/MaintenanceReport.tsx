@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, makeStyles } from '@fluentui/react-components';
+import { Button, makeStyles, Spinner } from '@fluentui/react-components';
 import { ArrowLeft24Regular } from '@fluentui/react-icons';
 import SpeechRecognizer from './speechRecognizer';
 import { renderMarkdown } from '../utilities/MarkdownRenderer';
@@ -27,6 +27,9 @@ const useStyles = makeStyles({
     },
     micContainer: {
         marginBottom: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
     },
     transcriptionArea: {
         height: '200px',
@@ -57,6 +60,12 @@ const useStyles = makeStyles({
         borderRadius: '5px',
         backgroundColor: '#fff',
         color: '#000',
+    },
+    spinnerContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '20px',
     }
 });
 
@@ -76,6 +85,7 @@ const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connectio
     const styles = useStyles();
     const [Messages, setMessages] = useState<Message[]>([]);
     const [reportHtml, setReportHtml] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleNewMessage = async (message: string) => {
         setMessages(prevMessages => {
@@ -119,13 +129,24 @@ const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connectio
     };
 
     const handleGenerateReport = async () => {
-        const transcript = {
-            content: Messages.map(message => message.content).join(' '),
-            customerInfo: selectedCustomer!.summary // Replace with actual customer info
-        };
-        const report = await postReport(transcript, connection.connectionId);    
-        const html = await renderMarkdown(report);
-        setReportHtml(html);
+        setIsLoading(true);
+        try {
+            const transcript = {
+                content: Messages.map(message => message.content).join(' '),
+                customerInfo: selectedCustomer!.summary // Replace with actual customer info
+            };
+            const report = await postReport(transcript, connection.connectionId);
+            const html = await renderMarkdown(report);
+            setReportHtml(html);
+        } catch (error) {
+            console.error('Error generating the report:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteMessages = () => {
+        setMessages([]);
     };
 
     return (
@@ -139,6 +160,7 @@ const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connectio
                     connection={connection}
                     selectedCustomer={null}
                 />
+                <Button onClick={handleDeleteMessages}>Delete Messages</Button>
             </div>
             <div className={styles.transcriptionArea}>
                 <div className={styles.messageContainer}>
@@ -154,7 +176,12 @@ const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connectio
             <div className={styles.actions}>
                 <Button onClick={handleGenerateReport}>Rapport</Button>
             </div>
-            {reportHtml && (
+            {isLoading && (
+                <div className={styles.spinnerContainer}>
+                    <Spinner label="Creation du rapport en cours..." />
+                </div>
+            )}
+            {(reportHtml && !isLoading) && (
                 <div className={styles.reportContainer} dangerouslySetInnerHTML={{ __html: reportHtml }} />
             )}
         </div>

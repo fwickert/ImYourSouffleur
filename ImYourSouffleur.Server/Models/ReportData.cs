@@ -9,6 +9,8 @@
         public string CustomerPhone { get; set; } = string.Empty;
 
         public string CustomerAddress { get; set; } = string.Empty;
+
+        public string Issue { get; set; } = string.Empty;
     }
 
 }
