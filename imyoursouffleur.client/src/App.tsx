@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import HeroSection from './components/HeroSection';
 import SamplesGrid from './components/SamplesGrid';
 import Synchronisation from './components/Synchronisation';
+import MaintenanceReport from './components/MaintenanceReport';
 import Chat from './components/chat';
 import { Persona } from './models/Persona';
 import { HubConnection } from '@microsoft/signalr';
@@ -16,6 +17,7 @@ const App: React.FC = () => {
     const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
     const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
     const [showChat, setShowChat] = useState<boolean>(false);
+    const [showMaintenanceReport, setShowMaintenanceReport] = useState<boolean>(false);
     const [connection, setConnection] = useState<HubConnection | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null); // Add selectedCustomer state
@@ -60,9 +62,14 @@ const App: React.FC = () => {
         setShowSynchronisationScreen(true);
     };
 
+    const handleMaintenanceReportClick = () => {
+        setShowMaintenanceReport(true);
+    }
+
     const handleBackClick = () => {
         setShowSynchronisationScreen(false);
         setShowChat(false);
+        setShowMaintenanceReport(false);
     };
 
     const handleCoachClick = () => {
@@ -110,12 +117,23 @@ const App: React.FC = () => {
                                     selectedCustomer={selectedCustomer}
                                     setSelectedCustomer={setSelectedCustomer} // Pass setSelectedCustomer
                                 />
-                            ) : (
-                                <>
-                                    <HeroSection onPersonaSelect={handlePersonaSelect} />
-                                    <SamplesGrid onSynchronisationClick={handleSynchronisationClick} onCoachClick={handleCoachClick} />
-                                </>
-                            )}
+                            ) : showMaintenanceReport ? (
+                                        <MaintenanceReport
+                                            onBack={handleBackClick}
+                                            connection={connection}
+                                            isOnline={isOnline}
+                                            selectedCustomer={selectedCustomer}
+                                        />
+                            ) :
+                                (
+                                    <>
+                                        <HeroSection onPersonaSelect={handlePersonaSelect} />
+                                        <SamplesGrid onSynchronisationClick={handleSynchronisationClick}
+                                            onCoachClick={handleCoachClick}
+                                            onRapportClick={handleMaintenanceReportClick}
+                                        />
+                                    </>
+                                )}
                         </main>
                     </div>
                 </div>

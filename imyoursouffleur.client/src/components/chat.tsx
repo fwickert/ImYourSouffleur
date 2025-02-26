@@ -137,7 +137,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
     const [messages, setMessages] = useState<Message[]>([]);
     const currentMessageRef = useRef<string | null>(null);
     const [isTyping, setIsTyping] = useState<boolean>(false);
-    const [showCustomerSummary, setShowCustomerSummary] = useState<boolean>(true); // Add showCustomerSummary state
+    const [showCustomerSummary, setShowCustomerSummary] = useState<boolean>(false); // Add showCustomerSummary state
 
     const customers = useCustomers().customers;
 
@@ -300,8 +300,15 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
     };
 
     return (
+
         <div className={styles.chatContainer}>
+
             <div className={styles.customerListContainer}>
+                <Button
+                    icon={<ArrowLeft24Regular />}
+                    onClick={onBack}
+                    className={styles.backButton}
+                />
                 <CustomerList onSelectCustomer={handleSelectCustomer} />
                 <Switch
                     checked={showCustomerSummary}
@@ -316,11 +323,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
                 )}
             </div>
             <div>
-                <Button
-                    icon={<ArrowLeft24Regular />}
-                    onClick={onBack}
-                    className={styles.backButton}
-                />
+              
 
                 <div className={styles.messagesContainer}>
                     {messages.map((msg, index) => (

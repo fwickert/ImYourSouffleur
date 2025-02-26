@@ -10,20 +10,14 @@ namespace ImYourSouffleur.Server.Controllers
     [ApiController]
     public class SpeechController : ControllerBase
     {
-        private readonly ILogger<SpeechController> _logger;
+        
         private readonly SpeechRecognitionService STT;        
-        private readonly IHubContext<MessageRelayHub> _messageRelayHubContext;
-        private readonly IWebHostEnvironment _env;
-
-        public SpeechController([FromServices] SpeechRecognitionService stt,            
-            [FromServices] IHubContext<MessageRelayHub> messageRelayHubContext,
-            [FromServices] IWebHostEnvironment env,
+        
+        public SpeechController([FromServices] SpeechRecognitionService stt,                    
             ILogger<SpeechController> logger)
         {
             STT = stt;            
-            _messageRelayHubContext = messageRelayHubContext;
-            _env = env;
-            _logger = logger;
+        
         }
 
         [HttpGet("micro")]

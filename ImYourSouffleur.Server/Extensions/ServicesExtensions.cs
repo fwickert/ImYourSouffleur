@@ -107,7 +107,9 @@ namespace ImYourSouffleur.Server.Extensions
             services.AddScoped<AppointmentService>();
             services.AddScoped<CustomerService>();
             services.AddScoped<AgentService>();
-            
+            services.AddScoped<LocalAgentService>();
+            services.AddScoped<ReportService>();
+
 
             return services;
         }

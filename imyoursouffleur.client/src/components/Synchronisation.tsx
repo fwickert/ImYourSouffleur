@@ -131,8 +131,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack, isOn
             </Card>
             <h1>Synchronisation</h1>
             <p>Récupère les informations pour ta journée</p>
-            <p>Prompt: {persona.prompt}</p>
-            <p>Status: {isOnline ? 'Online' : 'Offline'}</p> {/* Display online status */}
+            <p>{persona.prompt}</p>            
             <div className={classes.appointmentsContainer}>
                 <div className={classes.appointments}>
                     <Appointments persona={persona.type} onAppointmentsLoaded={handleAppointmentsLoaded} />

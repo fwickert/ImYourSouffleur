@@ -17,6 +17,7 @@
     <None Remove="Data\MachineACafeContoso.md" />
     <None Remove="Data\MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md" />
     <None Remove="Data\MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md" />
+    <None Remove="Data\Rapport.md" />
     <None Remove="Data\surfacehub.md" />
   </ItemGroup>
 
@@ -41,6 +42,9 @@
     </Content>
     <Content Include="Data\MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Rapport.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\surfacehub.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

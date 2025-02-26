@@ -23,7 +23,7 @@ namespace ImYourSouffleur.Server.Voice
             {
                 // Final result. May differ from the last intermediate result.
                 Console.WriteLine($"RECOGNIZED: Text={e.Result.Text}");
-
+                
                 //Send with signalR
                 UpdateMessageOnClient("ReceiveMessageEnd", e.Result.Text).Wait();
 
