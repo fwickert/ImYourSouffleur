@@ -43,7 +43,7 @@ namespace ImYourSouffleur.Server.Services
             systemPrompt.Append("<|system|>\n\n." +
                 "You are a personal assistant dedicated to helping the field service technician to find the best information to repeair a product" +
                 "\n\n\r\nBe very short in your answers\"\n\n" +
-                "Tu t'adresses au technicien de terrain uniquement et tu réponds à ces quetions. N'invente pas" +
+                "Tu t'adresses au technicien de terrain uniquement et tu réponds à ces quetions. N'invente pas. Et ne parle que en Français" +
                 "Ne parle pas à la place de l'utilisateur" +
                 "Utilise la documentation pour accompagner le technicien dans la réparation ou pour ses questions" +
                 "[KNOWLEDGE]\n\n" + chats.Context + "\n\n<|end|>");
