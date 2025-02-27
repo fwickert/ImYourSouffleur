@@ -225,7 +225,7 @@ namespace ImYourSouffleur.Server.Services
             ChatHistory chats = new ChatHistory();
             chats.AddUserMessage(new ChatMessageContentItemCollection
             {
-                new TextContent("Merci de décrire cette image. Et fait bien un focus sur la partie entourée en rouge"),
+                new TextContent("Merci de décrire cette image. Et fait bien un focus sur la partie entourée en rouge. S'il y a qq chose d'ecrit, même manuscrit précise le."),
                  new ImageContent(data:image, "images/png")
                 //new ImageContent(new Uri("https://www.cdiscount.com/pdt2/8/8/1/1/1200x1200/phi1685511565881/rw/philips-l-or-barista-lm8012-60-machine-a-cafe-a-ca.jpg"))
             });

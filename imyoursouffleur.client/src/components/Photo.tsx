@@ -28,20 +28,20 @@ const useStyles = makeStyles({
     },
     grid: {
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: '2fr 1fr',
         gap: '10px',
         width: '100%',
 
     },
     webcam: {
-        width: '600px',
-        height: '500px',
+        width: '800px',
+        height: '600px',
         position: 'relative',
         objectFit: 'cover',
     },
     photo: {
-        width: '600px',
-        height: '500px',
+        width: '800px',
+        height: '600px',
         objectFit: 'cover',
     },
     buttonWebCam: {
@@ -79,8 +79,8 @@ const useStyles = makeStyles({
     },
     photoContainer: {
         position: 'relative',
-        width: '600px',
-        height: '500px',
+        width: '800px',
+        height: '600px',
 
     },
     card: {
@@ -326,8 +326,8 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                     <img src={photo} alt="Captured" className={classes.photo} />
                                     <canvas
                                         ref={canvasRef}
-                                        width="600"
-                                        height="500"
+                                        width="800"
+                                        height="600"
                                         className={classes.canvas}
                                         onMouseDown={startDrawing}
                                         onMouseUp={endDrawing}
