@@ -7,6 +7,7 @@ import SamplesGrid from './components/SamplesGrid';
 import Synchronisation from './components/Synchronisation';
 import MaintenanceReport from './components/MaintenanceReport';
 import Chat from './components/chat';
+import PhotoUpload from './components/PhotoUpload'; // Import PhotoUpload component
 import { Persona } from './models/Persona';
 import { HubConnection } from '@microsoft/signalr';
 import { getHubConnection } from './services/SignalR';
@@ -18,6 +19,7 @@ const App: React.FC = () => {
     const [showSynchronisationScreen, setShowSynchronisationScreen] = useState<boolean>(false);
     const [showChat, setShowChat] = useState<boolean>(false);
     const [showMaintenanceReport, setShowMaintenanceReport] = useState<boolean>(false);
+    const [showPhotos, setShowPhotos] = useState<boolean>(false);
     const [connection, setConnection] = useState<HubConnection | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null); // Add selectedCustomer state
@@ -70,11 +72,16 @@ const App: React.FC = () => {
         setShowSynchronisationScreen(false);
         setShowChat(false);
         setShowMaintenanceReport(false);
+        setShowPhotos(false); // Reset showPhotos state
     };
 
     const handleCoachClick = () => {
         setShowChat(true);
     };
+
+    const handlePhotosClick = () => {
+        setShowPhotos(true);
+    }
 
     return (
         <CustomerProvider>
@@ -118,12 +125,14 @@ const App: React.FC = () => {
                                     setSelectedCustomer={setSelectedCustomer} // Pass setSelectedCustomer
                                 />
                             ) : showMaintenanceReport ? (
-                                        <MaintenanceReport
-                                            onBack={handleBackClick}
-                                            connection={connection}
-                                            isOnline={isOnline}
-                                            selectedCustomer={selectedCustomer}
-                                        />
+                                <MaintenanceReport
+                                    onBack={handleBackClick}
+                                    connection={connection}
+                                    isOnline={isOnline}
+                                    selectedCustomer={selectedCustomer}
+                                />
+                            ) : showPhotos ? (
+                                <PhotoUpload /> // Use PhotoUpload component
                             ) :
                                 (
                                     <>
@@ -131,6 +140,7 @@ const App: React.FC = () => {
                                         <SamplesGrid onSynchronisationClick={handleSynchronisationClick}
                                             onCoachClick={handleCoachClick}
                                             onRapportClick={handleMaintenanceReportClick}
+                                            onPhotosClick={handlePhotosClick}
                                         />
                                     </>
                                 )}

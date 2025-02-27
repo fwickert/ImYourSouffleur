@@ -71,6 +71,9 @@ public class Customer
     [JsonPropertyName("customerId")]
     public string CustomerId { get; set; }
 
+    [JsonPropertyName("company")]
+    public string Company { get; set; }
+
     [JsonPropertyName("firstName")]
     public string FirstName { get; set; }
 

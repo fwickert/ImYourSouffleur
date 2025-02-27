@@ -3,6 +3,7 @@
   "firstName": "Jane",
   "lastName": "Smith",
   "email": "jane.smith@business.com",
+  "company": "Business Corp.",
   "phone": "+1-800-555-6789",
   "address": {
     "street": "456 Commerce Ave",

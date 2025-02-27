@@ -122,8 +122,8 @@ namespace ImYourSouffleur.Server.Services
 
             // Create the instruction
             string instruction = "Get summary of the documentation et repear spécification. " +
-                "This documentation must be useful if the employee asks for advice to the AI." +
-                "Keep the product reference number in the summary" +
+                "This documentation must be useful if the employee asks for advice to the AI. The user can be a saler or a technician from FieldService" +
+                "Keep the product reference number in the summary (both Product documentation and technical informations" +
                 " \n\n[Documentation to summarize]\n\n" +
                 Doc + "\n\n[END]";
 

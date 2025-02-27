@@ -3,6 +3,7 @@
   "firstName": "John",
   "lastName": "Doe",
   "email": "john.doe@business.com",
+  "Company": "Business Inc.",
   "phone": "+1-800-555-1234",
   "address": {
     "street": "123 Business St",

@@ -11,6 +11,12 @@
         public string CustomerAddress { get; set; } = string.Empty;
 
         public string Issue { get; set; } = string.Empty;
+
+        public string Diagnostic { get; set; } = string.Empty;
+
+        public string Conclusion { get; set; } = string.Empty;
+
+        public string Comment { get; set; } = string.Empty;
     }
 
 }

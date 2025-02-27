@@ -21,6 +21,7 @@ export interface CustomerServiceHistory {
 
 export interface Customer {
     customerId: string;
+    company: string;
     firstName: string;
     lastName: string;
     email: string;

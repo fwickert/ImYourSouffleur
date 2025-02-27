@@ -19,14 +19,9 @@
   
 ## Interventions Réalisées  
   
-1. **Diagnostic :**  
-   [Diagnostic]
+
+[Diagnostic]
   
-2. **Réparation :**  
-   [Intervention]  
-  
-3. **Tests :**  
-   [Test]
   
 ---  
   

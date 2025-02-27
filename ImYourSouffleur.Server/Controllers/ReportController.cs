@@ -54,6 +54,9 @@ namespace ImYourSouffleur.Server.Controllers
             report = report.Replace("[CustomerAddress]", reportData!.CustomerAddress);
             report = report.Replace("[Issue]", reportData!.Issue);
             report = report.Replace("[Date]", DateTime.Today.ToString("dd/MM/yyyy"));
+            report = report.Replace("[Diagnostic]", reportData!.Diagnostic);
+            report = report.Replace("[Conclusion]", reportData!.Conclusion);
+            report = report.Replace("[Comment]", reportData!.Comment);
 
 
             return Ok(report);

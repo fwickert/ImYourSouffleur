@@ -149,7 +149,7 @@ const Synchronisation: React.FC<SynchronisationProps> = ({ persona, onBack, isOn
                                 <Spinner className={classes.spinner} />
                             ) : (
                                 <div className={classes.statusMessage}>
-                                    Customer {customers[index]?.firstName} {customers[index]?.lastName} is loaded
+                                        Client {customers[index]?.company} ({customers[index]?.firstName} {customers[index]?.lastName}) synchronisé
                                 </div>
                             )}
                         </div>

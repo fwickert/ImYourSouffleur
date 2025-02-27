@@ -10,7 +10,7 @@ interface SampleCardProps {
 
 const useStyles = makeStyles({
     card: {
-        width: '250px',
+        width: '230px',
         padding: '15px',
         display: 'flex',
         flexDirection: 'column',

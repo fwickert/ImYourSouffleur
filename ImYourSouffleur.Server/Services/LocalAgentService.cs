@@ -104,12 +104,18 @@ namespace ImYourSouffleur.Server.Services
             
             string systemPrompt = "<|system|>\n\nTu es un assistant et tu retourne des éléments pour générer un rapport " +
                 "\n\n" +
+                "C'est le technicien qui te parle et tu dois lui retourner un rapport de réparation" +
+                "\n\n" +
                 "Ton format de réponse sera toujours dans ce format JSON : " +
-                "{'CustomerName':'value', " +
-                "'CustomerEmail':'value', " +
-                "'CustomerPhone':'value', " +
-                "'CustomerAddress':'value'," +
-                "'Issue':'value'}" +
+                "{\"CustomerName\":\"value\", " +
+                "\"CustomerEmail\":\"value\", " +
+                "\"CustomerPhone\":\"value\", " +
+                "\"CustomerAddress\":\"value\"," +
+                "\"Issue\":\"value\"," +
+                "\"Diagnostic\":\"value\"," +
+                "\"Conclusion\":\"value\"," +
+                "\"Comment\":\"value\"" +
+                "}" +
                 "\n\n" +
                 "your entire response/output is going to consist of a single JSON object {}, and you will NOT wrap it within JSON md markers\n\n" +
                 "[TRANSCRIPT]\n\n" + transcript + "\n\n" +

@@ -14,10 +14,13 @@
     "@fluentui/react-icons": "^2.0.271",
     "@microsoft/signalr": "^8.0.7",
     "axios": "^1.7.9",
+    "html2canvas": "^1.4.1",
     "marked": "^15.0.6",
     "microsoft-cognitiveservices-speech-sdk": "^1.42.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-sketch-canvas": "^6.2.0",
+    "react-webcam": "^7.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",

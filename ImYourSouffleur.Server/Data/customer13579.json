@@ -3,11 +3,12 @@
   "firstName": "Michel",
   "lastName": "Durant",
   "email": "michel.durant@microsoft.com",
+  "company": "Microsoft",
   "phone": "+33-1-23-45-67-89",
   "address": {
-    "street": "1 Microsoft Way",
+    "street": "39 quai du Président F. Roosevelt",
     "city": "Issy-les-Moulineaux",
-    "state": "�le-de-France",
+    "state": "Ile-de-France",
     "zipCode": "92130",
     "country": "France"
   },
