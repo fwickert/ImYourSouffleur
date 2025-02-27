@@ -6,29 +6,29 @@ interface SamplesGridProps {
     onCoachClick: () => void;
     onRapportClick: () => void;
     onPhotosClick: () => void;
+    isOnline: boolean;
 }
 
-const SamplesGrid: React.FC<SamplesGridProps> = ({ onSynchronisationClick, onCoachClick, onRapportClick, onPhotosClick }) => {
+const SamplesGrid: React.FC<SamplesGridProps> = ({ onSynchronisationClick, onCoachClick, onRapportClick, onPhotosClick, isOnline }) => {
     const samples = [
-        { title: 'Synchronisation', description: 'Démarre ta journée en synchronisant tes données', buttonLabel: 'Synchronisation' },
-        { title: 'Coach', description: "Demande à ton Agent IA de t'aider si tu as des questions", buttonLabel: 'Coach' },
-        { title: 'Rapport', description: "Dicte ton rapport de maintenance et l'Agent IA s'occupe de tout", buttonLabel: 'Rapport' },
-        { title: 'Photos', description: 'Ajouter les photos et commentaires si nécessaire', buttonLabel: 'Photos' },
-        /*{ title: 'Souffleur', description: 'Utilise ton souffleur pour t\'aider pendant ton rendez-vous', buttonLabel: 'Souffleur' },*/
-        { title: 'Cloture', description: 'Termine tes dossiers de la journée en les re synchronisant', buttonLabel: 'Fin de journée' }
+        { title: 'Synchronisation', description: 'Démarre ta journée en synchronisant tes données', buttonLabel: 'Synchronisation', disabled: !isOnline },
+        { title: 'Coach', description: "Demande à ton Agent IA de t'aider si tu as des questions", buttonLabel: 'Coach', disabled: false },
+        { title: 'Rapport', description: "Dicte ton rapport de maintenance et l'Agent IA s'occupe de tout", buttonLabel: 'Rapport', disabled: false },
+        { title: 'Photos', description: 'Ajouter les photos et commentaires si nécessaire', buttonLabel: 'Photos', disabled: !isOnline },
+        /*{ title: 'Souffleur', description: 'Utilise ton souffleur pour t\'aider pendant ton rendez-vous', buttonLabel: 'Souffleur', disabled: false },*/
+        { title: 'Cloture', description: 'Termine tes dossiers de la journée en les re synchronisant', buttonLabel: 'Fin de journée', disabled: false }
     ];
 
     const handleButtonClick = (buttonLabel: string) => {
-        if (buttonLabel === 'Synchronisation') {
+        if (buttonLabel === 'Synchronisation' && isOnline) {
             onSynchronisationClick();
         } else if (buttonLabel === 'Coach') {
             onCoachClick();
         } else if (buttonLabel === 'Rapport') {
             onRapportClick();
-        } else if (buttonLabel === 'Photos') {
+        } else if (buttonLabel === 'Photos' && isOnline) {
             onPhotosClick();
         }
-
     };
 
     return (
@@ -42,6 +42,7 @@ const SamplesGrid: React.FC<SamplesGridProps> = ({ onSynchronisationClick, onCoa
                         description={sample.description}
                         buttonLabel={sample.buttonLabel}
                         onButtonClick={() => handleButtonClick(sample.buttonLabel)}
+                        disabled={sample.disabled}
                     />
                 ))}
             </div>

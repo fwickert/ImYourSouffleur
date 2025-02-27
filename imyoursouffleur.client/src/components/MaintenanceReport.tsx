@@ -81,7 +81,7 @@ interface MaintenanceReportProps {
     selectedCustomer: Customer | null;
 }
 
-const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connection, isOnline, selectedCustomer }) => {
+const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connection, selectedCustomer }) => {
     const styles = useStyles();
     const [Messages, setMessages] = useState<Message[]>([]);
     const [reportHtml, setReportHtml] = useState<string | null>(null);
@@ -160,7 +160,7 @@ const MaintenanceReport: React.FC<MaintenanceReportProps> = ({ onBack, connectio
                     connection={connection}
                     selectedCustomer={null}
                 />
-                <Button onClick={handleDeleteMessages}>Delete Messages</Button>
+                <Button onClick={handleDeleteMessages}>Suppression du transcript</Button>
             </div>
             <div className={styles.transcriptionArea}>
                 <div className={styles.messageContainer}>

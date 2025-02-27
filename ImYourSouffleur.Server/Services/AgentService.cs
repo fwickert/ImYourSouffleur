@@ -14,11 +14,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
 
 
-using Microsoft.Windows.AI.Generative;
-
-using System.Text;
-using Microsoft.Windows.AI.ContentModeration;
-
 namespace ImYourSouffleur.Server.Services
 {
     public class AgentService
@@ -207,12 +202,52 @@ namespace ImYourSouffleur.Server.Services
 
         }
 
-        
+        public async Task GetDescriptionFromImage(byte[] image, string endpoint, string connectionId)
+        {
+            await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
+
+            string instruction = "Tu es agent qui aide à décrire de manière précise les images";
+
+            ChatCompletionAgent agent = new()
+            {
+                Name = "ImageService",
+                Instructions = instruction,
+                Kernel = _kernel,
+                Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
+                {
+                    ServiceId = endpoint,
+
+                })
+            };
+            //string imagePath = "C:\\Users\\frewickert\\Pictures\\Contoso BrewMaster 3000 coffee machine with a sleek design, modern kitchen setting, user interface, accessories, coffee ambiance, and smart connectivity features.png";
+            //byte[] imageBytes = await File.ReadAllBytesAsync(imagePath);
+            
+            ChatHistory chats = new ChatHistory();
+            chats.AddUserMessage(new ChatMessageContentItemCollection
+            {
+                new TextContent("Merci de décrire cette image. Et fait bien un focus sur la partie entourée en rouge"),
+                 new ImageContent(data:image, "images/png")
+                //new ImageContent(new Uri("https://www.cdiscount.com/pdt2/8/8/1/1/1200x1200/phi1685511565881/rw/philips-l-or-barista-lm8012-60-machine-a-cafe-a-ca.jpg"))
+            });
+
+            string responseContent = string.Empty;
+            await foreach (StreamingChatMessageContent response in agent.InvokeStreamingAsync(chats))
+            {
+                responseContent += response.Content;
+                if (!string.IsNullOrEmpty(responseContent))
+                {
+                    await this.UpdateMessageOnClient("InProgressMessageUpdate", responseContent, connectionId);
+                    Console.Write(response.Content);
+                }
+            }
+
+        }
 
 
         private async Task UpdateMessageOnClient(string hubconnection, string message, string connectionId)
         {
             await this._messageRelayHubContext.Clients.Client(connectionId).SendAsync(hubconnection, message);
+
         }
     }
 }

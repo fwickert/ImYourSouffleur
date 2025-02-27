@@ -6,6 +6,7 @@ interface SampleCardProps {
     description: string;
     buttonLabel: string;
     onButtonClick: () => void;
+    disabled?: boolean;
 }
 
 const useStyles = makeStyles({
@@ -22,6 +23,11 @@ const useStyles = makeStyles({
             backgroundColor: '#3A3F44',
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
         },
+        '&.disabled': {
+            backgroundColor: '#f0f0f0',
+            boxShadow: 'none',
+            cursor: 'not-allowed',
+        },
     },
     title: {
         margin: 0,
@@ -33,14 +39,14 @@ const useStyles = makeStyles({
     },
 });
 
-const SampleCard: React.FC<SampleCardProps> = ({ title, description, buttonLabel, onButtonClick }) => {
+const SampleCard: React.FC<SampleCardProps> = ({ title, description, buttonLabel, onButtonClick, disabled }) => {
     const styles = useStyles();
 
     return (
-        <Card className={styles.card}>
+        <Card className={`${styles.card} ${disabled ? 'disabled' : ''}`}>
             <CardHeader header={<h3 className={styles.title}>{title}</h3>} />
             <p className={styles.description}>{description}</p>
-            <Button appearance="primary" onClick={onButtonClick}>{buttonLabel}</Button>
+            <Button appearance="primary" onClick={onButtonClick} disabled={disabled}>{buttonLabel}</Button>
         </Card>
     );
 };

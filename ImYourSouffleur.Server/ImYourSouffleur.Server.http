@@ -24,3 +24,8 @@ Content-Type: application/json
   "content": "J'ai réparer la machine de Mr Durant",
   "customerInfo": "Mr Durant avec comme email f@toto.fr"  
 }
+
+### New request to call GetDescriptionFromImage
+
+POST {{ImYourSouffleur.Server_HostAddress}}/api/Image/GetDescriptionFromImage?endpoint=Cloud4omini&connectionId=YourConnectionIdHere
+Content-Type: application/json

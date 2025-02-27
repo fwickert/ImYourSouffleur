@@ -3,8 +3,7 @@ import {
     Button,
     Input,
     makeStyles,
-    shorthands,
-    Switch,
+    shorthands,    
     Tab,
     TabList
 } from '@fluentui/react-components';
@@ -138,8 +137,7 @@ const Chat: React.FC<ChatProps> = ({ onBack, connection, isOnline, selectedCusto
     const [inputText, setInputText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const currentMessageRef = useRef<string | null>(null);
-    const [isTyping, setIsTyping] = useState<boolean>(false);
-    const [showCustomerSummary, setShowCustomerSummary] = useState<boolean>(false); // Add showCustomerSummary state
+    const [isTyping, setIsTyping] = useState<boolean>(false);    
     const [selectedTab, setSelectedTab] = useState<string>('chat'); // Add selectedTab state
     const [renderedCustomerSummary, setRenderedCustomerSummary] = useState<string>(''); // Add state for rendered customer summary
 

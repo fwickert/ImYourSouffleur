@@ -7,7 +7,7 @@ import SamplesGrid from './components/SamplesGrid';
 import Synchronisation from './components/Synchronisation';
 import MaintenanceReport from './components/MaintenanceReport';
 import Chat from './components/chat';
-import PhotoUpload from './components/PhotoUpload'; // Import PhotoUpload component
+import Photo from './components/Photo'; // Import PhotoUpload component
 import { Persona } from './models/Persona';
 import { HubConnection } from '@microsoft/signalr';
 import { getHubConnection } from './services/SignalR';
@@ -132,7 +132,11 @@ const App: React.FC = () => {
                                     selectedCustomer={selectedCustomer}
                                 />
                             ) : showPhotos ? (
-                                <PhotoUpload /> // Use PhotoUpload component
+                                <Photo onBack={handleBackClick}
+                                    connection={connection}
+                                    isOnline={isOnline}
+                                    selectedCustomer={selectedCustomer}
+                                    setSelectedCustomer={setSelectedCustomer} /> // Use PhotoUpload component
                             ) :
                                 (
                                     <>
@@ -141,6 +145,7 @@ const App: React.FC = () => {
                                             onCoachClick={handleCoachClick}
                                             onRapportClick={handleMaintenanceReportClick}
                                             onPhotosClick={handlePhotosClick}
+                                            isOnline={isOnline}
                                         />
                                     </>
                                 )}
