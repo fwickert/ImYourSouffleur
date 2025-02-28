@@ -243,6 +243,40 @@ namespace ImYourSouffleur.Server.Services
 
         }
 
+        public async Task GetEmailSummary(string email, string endpoint, string connectionId)
+        {
+            await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
+            string instruction = "tu es un assistant pour le fieldservice pour la société Contoso.\r\n" +
+                "Le technicien a fait une intervention.\r\n" +
+                "Tu recois des informations pour faire un mail de recap au client.\r\n" +
+                "Si le technicien a pris une photo, précise le dans le mail.\r\n" +
+                "Formule un mail de réponse complet.\r\n" +
+                "L'email est celui du client.\r\n" +
+                "Utilise son nom dans le mail pas son prénom\r\n\r\n" +
+                "Signe Contoso Service Client\r\n+33678451245\r\ncontoso@support.com\r\n";
+            ChatCompletionAgent agent = new()
+            {
+                Name = "EmailService",
+                Instructions = instruction,
+                Kernel = _kernel,
+                Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
+                {
+                    ServiceId = endpoint,
+                })
+            };            
+            ChatHistory chats = new ChatHistory();
+            chats.AddUserMessage(email);
+            string responseContent = string.Empty;
+            await foreach (StreamingChatMessageContent response in agent.InvokeStreamingAsync(chats))
+            {
+                responseContent += response.Content;
+                if (!string.IsNullOrEmpty(responseContent))
+                {
+                    await this.UpdateMessageOnClient("InProgressMessageUpdate", responseContent, connectionId);
+                    Console.Write(response.Content);
+                }
+            }
+        }
 
         private async Task UpdateMessageOnClient(string hubconnection, string message, string connectionId)
         {

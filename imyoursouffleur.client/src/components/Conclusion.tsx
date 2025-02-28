@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, makeStyles, Card, Dialog, DialogTrigger, DialogSurface, DialogTitle, DialogBody, DialogActions, DialogContent } from '@fluentui/react-components';
+import { Button, makeStyles, Card, Dialog, DialogTrigger, DialogSurface, DialogTitle, DialogBody, DialogActions, DialogContent, Spinner } from '@fluentui/react-components';
 import { ArrowLeft24Regular } from '@fluentui/react-icons';
-import { fetchFilledReport, fetchImageDescription } from '../services/ReportService';
+import { fetchFilledReport, fetchImageDescription, postConclusion } from '../services/ReportService';
 import { Customer } from '../models/Customer';
 import { renderMarkdown } from '../utilities/MarkdownRenderer';
+import { HubConnection } from '@microsoft/signalr';
 
 const useStyles = makeStyles({
     container: {
@@ -74,7 +75,7 @@ const useStyles = makeStyles({
 
 interface ConclusionProps {
     onBack: () => void;
-    connection: any;
+    connection: HubConnection | null;
     isOnline: boolean;
     selectedCustomer: Customer | null;
 }
@@ -84,6 +85,8 @@ const Conclusion: React.FC<ConclusionProps> = ({ onBack, connection, isOnline, s
     const [report, setReport] = useState<string>('');
     const [imageDescription, setImageDescription] = useState<string>('');
     const [isDialogVisible, setIsDialogVisible] = useState<boolean>(false);
+    const [dialogMessage, setDialogMessage] = useState<string>('');
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -102,9 +105,35 @@ const Conclusion: React.FC<ConclusionProps> = ({ onBack, connection, isOnline, s
         fetchReport();
     }, []);
 
-    const handleSave = () => {
-        // Logic to save the case
-        setIsDialogVisible(true);
+    useEffect(() => {
+        if (connection) {
+            connection.on('StartMessageUpdate', async () => {
+                
+                setDialogMessage("");
+                setIsProcessing(true);
+                setIsDialogVisible(true);
+            });
+
+            connection.on('InProgressMessageUpdate', async (message: string) => {
+                const renderedMessage = await renderMarkdown(message);
+                setDialogMessage(renderedMessage);
+                setIsProcessing(false);
+            });
+        }
+    }, [connection]);
+
+    const handleSave = async () => {
+        if (selectedCustomer) {
+            try {
+                const infos = {
+                    content: selectedCustomer!.summary + report + imageDescription
+                };
+                await postConclusion(infos, isOnline, connection?.connectionId || '');
+                setIsDialogVisible(true);
+            } catch (error) {
+                console.error('Error posting the conclusion:', error);
+            }
+        }
     };
 
     const closeDialog = () => {
@@ -137,8 +166,8 @@ const Conclusion: React.FC<ConclusionProps> = ({ onBack, connection, isOnline, s
                     <DialogBody>
                         <DialogTitle>Dossier Enregistr&eacute;</DialogTitle>
                         <DialogContent>
-                            Dossier bien enregistr&eacute;.<br/>
-                            Un e-mail sera envoy&eacute; au client.
+                            {isProcessing && <Spinner label="Creation du mail en cours" />}
+                            <div dangerouslySetInnerHTML={{ __html: dialogMessage }} />
                         </DialogContent>
                         <DialogActions>
                             <Button appearance="primary" onClick={closeDialog}>OK</Button>

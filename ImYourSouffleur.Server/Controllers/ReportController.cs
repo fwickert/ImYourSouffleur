@@ -11,11 +11,13 @@ namespace ImYourSouffleur.Server.Controllers
     {
         private readonly ReportService _reportService;
         private readonly LocalAgentService _localAgentService;
+        private readonly AgentService _agentService;
 
-        public ReportController(ReportService reportService, LocalAgentService localAgentService)
+        public ReportController(ReportService reportService, LocalAgentService localAgentService, AgentService agentService)
         {
             _reportService = reportService;
             _localAgentService = localAgentService;
+            _agentService = agentService;
         }
 
         [HttpGet]
@@ -52,6 +54,13 @@ namespace ImYourSouffleur.Server.Controllers
             return Ok(report);
         }
 
+        [HttpPost("Conclusion")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult PostConclusion([FromBody] Conclusion conclusion, string endpoint, string connectionId)
+        {
+            _ = Task.Run(() => _agentService.GetEmailSummary(conclusion.Content, endpoint, connectionId));
+            return Ok();
+        }
 
 
         //post and call the #LocalAgentService
