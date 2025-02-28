@@ -14,6 +14,8 @@
   <ItemGroup>
     <None Remove="Data\DistributeurContoso.md" />
     <None Remove="Data\DistributeurReparation.md" />
+    <None Remove="Data\FilledReport.md" />
+    <None Remove="Data\ImageDescription.md" />
     <None Remove="Data\MachineACafeContoso.md" />
     <None Remove="Data\MSFT-Microsoft-Surface-Laptop-7th-Edition-Fact-Sheet.md" />
     <None Remove="Data\MSFT-Microsoft-Surface-Pro-11th-Edition-Fact-Sheet.md" />
@@ -22,6 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Data\FilledReport.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\ImageDescription.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\MachineACafeReparation.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

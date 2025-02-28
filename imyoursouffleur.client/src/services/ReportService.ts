@@ -22,3 +22,23 @@ export async function postReport(transcript: { content: string, customerInfo: st
         throw error;
     }
 }
+
+export async function fetchFilledReport(): Promise<string> {
+    try {
+        const response = await axios.get('/api/report/filled');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching the filled report:', error);
+        throw error;
+    }
+}
+
+export async function fetchImageDescription(): Promise<string> {
+    try {
+        const response = await axios.get('/api/report/imageDescription');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching the image description:', error);
+        throw error;
+    }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useId, Button, Text, Select, makeStyles, Slider, Label, Spinner, Card } from '@fluentui/react-components';
+import { useId, Button, Select, makeStyles, Slider, Label, Spinner, Card } from '@fluentui/react-components';
 import Webcam from 'react-webcam';
 import html2canvas from 'html2canvas';
 import { HubConnection } from '@microsoft/signalr';
@@ -34,13 +34,13 @@ const useStyles = makeStyles({
 
     },
     webcam: {
-        width: '800px',
+        width: '900px',
         height: '600px',
         position: 'relative',
         objectFit: 'cover',
     },
     photo: {
-        width: '800px',
+        width: '900px',
         height: '600px',
         objectFit: 'cover',
     },
@@ -79,12 +79,12 @@ const useStyles = makeStyles({
     },
     photoContainer: {
         position: 'relative',
-        width: '800px',
+        width: '900px',
         height: '600px',
 
     },
     card: {
-        width: '100%',        
+        width: '100%',
         padding: '15px',
         display: 'flex',
         flexDirection: 'column',
@@ -326,7 +326,7 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                     <img src={photo} alt="Captured" className={classes.photo} />
                                     <canvas
                                         ref={canvasRef}
-                                        width="800"
+                                        width="900"
                                         height="600"
                                         className={classes.canvas}
                                         onMouseDown={startDrawing}
@@ -339,9 +339,12 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
 
 
                                 </div>
+                                <div className={classes.controls}>
+                                    
+                                </div>
                             </>
                         )}
-                        {!showWebcam && <Button icon={<CameraFilled/> } onClick={handleReshowWebcam}></Button>}
+                        {!showWebcam && <Button icon={<CameraFilled />} onClick={handleReshowWebcam}></Button>}
                     </div>
 
                     <div>
@@ -368,22 +371,23 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                     max={10}
                                     step={1}
                                 />
-                                <Button onClick={handleSave}>Interprete l'image </Button>
+                                <Button onClick={handleSave} disabled={!isOnline } >Interprete l'image </Button>
                                 {/*<Button onClick={handleDeletePhoto}>Delete Photo</Button>*/}
                                 {/*<Button onClick={handleGenerateDescription}>Generate Description</Button>*/}
-                                {loading && <Spinner className={classes.spinner } label="Interpretation en cours..." />}
+                                {loading && <Spinner className={classes.spinner} label="Interpretation en cours..." />}
                                 {description &&
                                     <>
-                                        <Card className={classes.card}>                                            
-                                                <p className={classes.description}>{description}</p>                                            
+                                        <Card className={classes.card}>
+                                            <p className={classes.description}>{description}</p>
                                         </Card>
                                     </>
                                 }
 
-                            </div>}
+                            </div>
+                        }
                     </div>
                 </div>
-                
+
             </div>
         </>
     );

@@ -7,12 +7,13 @@ import SamplesGrid from './components/SamplesGrid';
 import Synchronisation from './components/Synchronisation';
 import MaintenanceReport from './components/MaintenanceReport';
 import Chat from './components/chat';
-import Photo from './components/Photo'; // Import PhotoUpload component
+import Photo from './components/Photo';
+import Conclusion from './components/Conclusion'; // Import Conclusion component
 import { Persona } from './models/Persona';
 import { HubConnection } from '@microsoft/signalr';
 import { getHubConnection } from './services/SignalR';
-import { CustomerProvider } from './models/CustomerContext'; // Import CustomerProvider
-import { Customer } from './models/Customer'; // Import Customer
+import { CustomerProvider } from './models/CustomerContext';
+import { Customer } from './models/Customer';
 
 const App: React.FC = () => {
     const [selectedPersona, setSelectedPersona] = useState<number | null>(null);
@@ -20,9 +21,10 @@ const App: React.FC = () => {
     const [showChat, setShowChat] = useState<boolean>(false);
     const [showMaintenanceReport, setShowMaintenanceReport] = useState<boolean>(false);
     const [showPhotos, setShowPhotos] = useState<boolean>(false);
+    const [showConclusion, setShowConclusion] = useState<boolean>(false); // Add showConclusion state
     const [connection, setConnection] = useState<HubConnection | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null); // Add selectedCustomer state
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
     const personas: Persona[] = [
         { name: 'Vendeurs', type: "Sales", prompt: 'Démarre ta journée en synchronisant tes données de vente.', image: '/sales.jpeg' },
@@ -66,13 +68,14 @@ const App: React.FC = () => {
 
     const handleMaintenanceReportClick = () => {
         setShowMaintenanceReport(true);
-    }
+    };
 
     const handleBackClick = () => {
         setShowSynchronisationScreen(false);
         setShowChat(false);
         setShowMaintenanceReport(false);
-        setShowPhotos(false); // Reset showPhotos state
+        setShowPhotos(false);
+        setShowConclusion(false); // Reset showConclusion state
     };
 
     const handleCoachClick = () => {
@@ -81,7 +84,11 @@ const App: React.FC = () => {
 
     const handlePhotosClick = () => {
         setShowPhotos(true);
-    }
+    };
+
+    const handleConclusionClick = () => {
+        setShowConclusion(true);
+    };
 
     return (
         <CustomerProvider>
@@ -122,7 +129,7 @@ const App: React.FC = () => {
                                     connection={connection}
                                     isOnline={isOnline}
                                     selectedCustomer={selectedCustomer}
-                                    setSelectedCustomer={setSelectedCustomer} // Pass setSelectedCustomer
+                                    setSelectedCustomer={setSelectedCustomer}
                                 />
                             ) : showMaintenanceReport ? (
                                 <MaintenanceReport
@@ -132,23 +139,33 @@ const App: React.FC = () => {
                                     selectedCustomer={selectedCustomer}
                                 />
                             ) : showPhotos ? (
-                                <Photo onBack={handleBackClick}
+                                <Photo
+                                    onBack={handleBackClick}
                                     connection={connection}
                                     isOnline={isOnline}
                                     selectedCustomer={selectedCustomer}
-                                    setSelectedCustomer={setSelectedCustomer} /> // Use PhotoUpload component
-                            ) :
-                                (
-                                    <>
-                                        <HeroSection onPersonaSelect={handlePersonaSelect} />
-                                        <SamplesGrid onSynchronisationClick={handleSynchronisationClick}
-                                            onCoachClick={handleCoachClick}
-                                            onRapportClick={handleMaintenanceReportClick}
-                                            onPhotosClick={handlePhotosClick}
-                                            isOnline={isOnline}
-                                        />
-                                    </>
-                                )}
+                                    setSelectedCustomer={setSelectedCustomer}
+                                />
+                            ) : showConclusion ? (
+                                <Conclusion
+                                    onBack={handleBackClick}
+                                    connection={connection}
+                                    isOnline={isOnline}
+                                    selectedCustomer={selectedCustomer}
+                                />
+                            ) : (
+                                <>
+                                    <HeroSection onPersonaSelect={handlePersonaSelect} />
+                                    <SamplesGrid
+                                        onSynchronisationClick={handleSynchronisationClick}
+                                        onCoachClick={handleCoachClick}
+                                        onRapportClick={handleMaintenanceReportClick}
+                                        onPhotosClick={handlePhotosClick}
+                                        onConclusionClick={handleConclusionClick} // Add onConclusionClick
+                                        isOnline={isOnline}
+                                    />
+                                </>
+                            )}
                         </main>
                     </div>
                 </div>

@@ -94,7 +94,7 @@ namespace ImYourSouffleur.Server.Services
             l.Progress = (_, generetionProgress) =>
             {
                 stringBuilder.Append(generetionProgress);
-                this.UpdateMessageOnClient("InProgressMessageUpdate", stringBuilder.ToString().Replace("<|system|>", "").Replace("<|assistant|>", ""), connectionId).GetAwaiter().GetResult();
+                this.UpdateMessageOnClient("InProgressMessageUpdate", stringBuilder.ToString().Replace("<|system|>", "").Replace("<|assistant|>", "").Replace("<|end|>",""), connectionId).GetAwaiter().GetResult();
             };
         }
 
