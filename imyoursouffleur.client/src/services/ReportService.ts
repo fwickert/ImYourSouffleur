@@ -44,9 +44,9 @@ export async function fetchImageDescription(): Promise<string> {
 }
 
 export async function postConclusion(conclusion: { content: string }, isOnline: boolean, connectionId: string): Promise<void> {
-    const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
+    const endpoint = isOnline ? "Cloud4o" : "Localphi3";
     try {
-        const reponse = await axios.post('/api/report/conclusion', conclusion,
+        const response = await axios.post('/api/report/conclusion', conclusion,
             { params: { endpoint, connectionId } });
         return response.data;
     } catch (error) {
