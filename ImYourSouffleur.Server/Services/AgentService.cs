@@ -206,7 +206,8 @@ namespace ImYourSouffleur.Server.Services
         {
             await this.UpdateMessageOnClient("StartMessageUpdate", "", connectionId);
 
-            string instruction = "Tu es agent qui aide à décrire de manière précise les images";
+            string instruction = "Tu es agent au service des techniciens de maintenances et tu aides à décrire de manière précise les images." +
+                "Retourne ta réponse comme si tu t'adresses au technicien et donne lui les informations dans le contexte d'une réparation aussi bien pour lui que pour le client.";
 
             ChatCompletionAgent agent = new()
             {

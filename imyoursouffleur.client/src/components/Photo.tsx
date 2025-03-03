@@ -6,9 +6,11 @@ import { HubConnection } from '@microsoft/signalr';
 import { Customer } from '../models/Customer';
 import {
     ArrowLeft24Regular,
-    CameraFilled
+    CameraFilled,
+    ImageAddRegular
 } from '@fluentui/react-icons';
 import ImageService from '../services/ImageService'; // Import ImageService
+import { renderMarkdown } from '../utilities/MarkdownRenderer';
 
 const useStyles = makeStyles({
     backButton: {
@@ -75,7 +77,7 @@ const useStyles = makeStyles({
         marginBottom: '10px',
     },
     input: {
-        marginBottom: '10px',
+        display: 'none', // Hide the input file element
     },
     photoContainer: {
         position: 'relative',
@@ -93,6 +95,7 @@ const useStyles = makeStyles({
         borderRadius: '20px',
         marginTop: '10px',
         overflow: 'auto',
+        minHeight: '500px',
     },
     description: {
         color: 'white',
@@ -100,6 +103,9 @@ const useStyles = makeStyles({
         flexGrow: 1,
     },
     spinner: {
+        marginTop: '10px',
+    },
+    cambutton: {
         marginTop: '10px',
     }
 });
@@ -126,6 +132,7 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
     const webcamRef = useRef<Webcam>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const photoContainerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null); // Add ref for file input
     const isDrawing = useRef<boolean>(false);
 
     useEffect(() => {
@@ -146,10 +153,11 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
         }
     }, [connection]);
 
-    const setupConnectionHandlers = (connection: HubConnection) => {
-        connection.on('InProgressMessageUpdate', (newDescription: string) => {
+    const setupConnectionHandlers = async (connection: HubConnection) => {
+        connection.on('InProgressMessageUpdate', async (newDescription: string) => {
             setLoading(false);
-            setDescription(newDescription);
+            const renderedDescription = await renderMarkdown(newDescription);
+            setDescription(renderedDescription);
         });
     };
 
@@ -168,10 +176,6 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
         }
     }, [webcamRef]);
 
-    //const handleGenerateDescription = () => {
-    //    setDescription('Generated description for the photo.');
-    //};
-
     const handleDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedDeviceId(event.target.value);
     };
@@ -185,7 +189,7 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
             const file = new File([blob], 'photo_with_drawing.png', { type: 'image/png' });
 
             const imageService = new ImageService();
-            const endpoint = isOnline ? "Cloud4omini" : "Localphi3";
+            const endpoint = isOnline ? "Cloud4o" : "Localphi3";
             const connectionId = connection?.connectionId || '';
 
             try {
@@ -262,6 +266,22 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
         handleDeletePhoto();
     };
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhoto(reader.result as string);
+                setShowWebcam(false);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    };
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
@@ -317,7 +337,14 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                     className={classes.webcam}
                                 />
                                 <Button onClick={capturePhoto} className={classes.buttonWebCam}></Button>
-
+                                <Button icon={<ImageAddRegular />} onClick={triggerFileInput}></Button>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    ref={fileInputRef}
+                                    className={classes.input}
+                                />
                             </div>
                         )}
                         {photo && (
@@ -336,15 +363,10 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                         onTouchEnd={endDrawing}
                                         onTouchMove={draw}
                                     />
-
-
-                                </div>
-                                <div className={classes.controls}>
-                                    
-                                </div>
+                                </div>                                
                             </>
                         )}
-                        {!showWebcam && <Button icon={<CameraFilled />} onClick={handleReshowWebcam}></Button>}
+                        {!showWebcam && <Button className={classes.cambutton} icon={<CameraFilled />} onClick={handleReshowWebcam}></Button>}
                     </div>
 
                     <div>
@@ -354,7 +376,7 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                     Couleur
                                 </Label>
                                 <input
-                                    className={classes.input}
+                                    
                                     type="color"
                                     value={penColor}
                                     onChange={(e) => setPenColor(e.target.value)}
@@ -364,21 +386,19 @@ const Photo: React.FC<PhotoProps> = ({ onBack, connection, isOnline }) => {
                                 </Label>
                                 <Slider
                                     id={id}
-                                    className={classes.input}
+                                    
                                     value={penSize}
                                     onChange={(_, data) => setPenSize(data.value)}
                                     min={1}
                                     max={10}
                                     step={1}
                                 />
-                                <Button onClick={handleSave} disabled={!isOnline } >Interprete l'image </Button>
-                                {/*<Button onClick={handleDeletePhoto}>Delete Photo</Button>*/}
-                                {/*<Button onClick={handleGenerateDescription}>Generate Description</Button>*/}
+                                <Button onClick={handleSave} disabled={!isOnline} >Interprete l'image </Button>
                                 {loading && <Spinner className={classes.spinner} label="Interpretation en cours..." />}
                                 {description &&
                                     <>
                                         <Card className={classes.card}>
-                                            <p className={classes.description}>{description}</p>
+                                            <p className={classes.description} dangerouslySetInnerHTML={{ __html: description }}></p>
                                         </Card>
                                     </>
                                 }
