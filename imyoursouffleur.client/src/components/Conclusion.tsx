@@ -61,6 +61,7 @@ const useStyles = makeStyles({
         borderRadius: '20px',
         marginTop: '10px',
         overflow: 'auto',
+        minHeight: '400px',
     },
     description: {
         color: 'white',
@@ -71,6 +72,9 @@ const useStyles = makeStyles({
         marginTop: '20px',
         alignSelf: 'center',
     },
+    dialog: {
+        minwidth: '600px',
+    }
 });
 
 interface ConclusionProps {
@@ -163,7 +167,7 @@ const Conclusion: React.FC<ConclusionProps> = ({ onBack, connection, isOnline, s
             <Button className={styles.saveButton} onClick={handleSave}>Enregistrer le dossier</Button>
             <Dialog open={isDialogVisible} >
                 <DialogSurface>
-                    <DialogBody>
+                    <DialogBody className={styles.dialog }>
                         <DialogTitle>Dossier Enregistr&eacute;</DialogTitle>
                         <DialogContent>
                             {isProcessing && <Spinner label="Creation du mail en cours" />}
